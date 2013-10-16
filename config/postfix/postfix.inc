@@ -422,6 +422,10 @@ EOF;
 	if ($config['installedpackages']['postfixacl']['config'][0]['cal_pcre']){
 		$cal_pcre = px_text_area_decode($config['installedpackages']['postfixacl']['config'][0]['cal_pcre']);
 		}
+	#rbl override
+	if ($config['installedpackages']['postfixacl']['config'][0]['rbl_override']){
+		$rbl_override = px_text_area_decode($config['installedpackages']['postfixacl']['config'][0]['rbl_override']);
+		}
 	$postfix_main .= px_text_area_decode($postfix_config['maincf'])."\n". 
 		"relay_domains ={$relay_domains}\n" .
 		"transport_maps = hash:".POSTFIX_LOCALBASE."/etc/postfix/transport\n" .
@@ -441,7 +445,7 @@ EOF;
 
         $postfix_main .= "relayhost = " . $relay_host . "\n" .
         "smtp_sasl_auth_enable = yes\n" .
-            "smtp_sasl_password_maps = hash:/usr/local/etc/postfix/sasl_passwd\n" .
+            "smtp_sasl_password_maps = hash:".POSTFIX_LOCALBASE."/etc/postfix/sasl_passwd\n" .
             "smtp_sasl_type = cyrus\n" .
             "smtp_use_tls = yes\n" .
           "smtp_sasl_security_options = noanonymous, noplaintext\n" .
@@ -676,7 +680,9 @@ MASTEREOF;
 		
 	}
 	$rbl2.=($rbl2 !=""?"\t\t\t\tpermit\n":"permit\n");
-	$postfix_main=preg_replace("/RBLRBLRBL/",$rbl2,$postfix_main);
+	$rblFile=POSTFIX_LOCALBASE."/etc/postfix/rbl_override";
+	$rbl3="check_client_access hash:$rblFile,\n\t\t\t".$rbl2;
+	$postfix_main=preg_replace("/RBLRBLRBL/",$rbl3,$postfix_main);
 	
 	#Header Maps
 	$anvil_config=$config['installedpackages']['postfixantispam']['config'][0]['anvil'];
@@ -726,7 +732,8 @@ MASTEREOF2;
 	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/body_check", $body_check, LOCK_EX);
 	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/mynetwork_table", $mynetworks, LOCK_EX);
 	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/sasl_passwd", $sasl_passwd, LOCK_EX);
-	$FILES=array("transport","sender_access","sasl_password");
+	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/rbl_override", $rbl_override, LOCK_EX);
+	$FILES=array("transport","sender_access","sasl_passwd","rbl_override");
 	foreach ($FILES as $file)
 		{
 		mwexec(POSTFIX_LOCALBASE."/sbin/postmap ".POSTFIX_LOCALBASE."/etc/postfix/".$file);
