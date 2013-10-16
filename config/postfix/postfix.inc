@@ -431,6 +431,23 @@ EOF;
 		"mynetworks_style = host\n" .
 		"message_size_limit = {$message_size_limit}\n" .
 		"default_process_limit = {$process_limit}\n";
+
+	$sasl_passwd = "";
+    if($postfix_config['enable_relay_host']){
+
+        $relay_host = "[" . $postfix_config['relay_hostname'] . "]". ":" . $postfix_config['relay_port'];
+
+        $sasl_passwd .=  $relay_host . "    " . $postfix_config['relay_username'] . ":" . $postfix_config['relay_password'] . "\n";
+
+        $postfix_main .= "relayhost = " . $relay_host . "\n" .
+        "smtp_sasl_auth_enable = yes\n" .
+            "smtp_sasl_password_maps = hash:/usr/local/etc/postfix/sasl_passwd\n" .
+            "smtp_sasl_type = cyrus\n" .
+            "smtp_use_tls = yes\n" .
+          "smtp_sasl_security_options = noanonymous, noplaintext\n" .
+            "smtp_sasl_tls_security_options = noanonymous\n" .
+            "smtp_sasl_mechanism_filter = plain, login\n";
+    }
 	#assign antispam options
 	$antispam=$config['installedpackages']['postfixantispam']['config'][0];
 	
@@ -708,7 +725,8 @@ MASTEREOF2;
 	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/mime_check", $mime_check, LOCK_EX);
 	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/body_check", $body_check, LOCK_EX);
 	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/mynetwork_table", $mynetworks, LOCK_EX);
-	$FILES=array("transport","sender_access");
+	file_put_contents(POSTFIX_LOCALBASE."/etc/postfix/sasl_passwd", $sasl_passwd, LOCK_EX);
+	$FILES=array("transport","sender_access","sasl_password");
 	foreach ($FILES as $file)
 		{
 		mwexec(POSTFIX_LOCALBASE."/sbin/postmap ".POSTFIX_LOCALBASE."/etc/postfix/".$file);
