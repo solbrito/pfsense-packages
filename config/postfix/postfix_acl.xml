@@ -213,6 +213,23 @@
 			<rows>10</rows>
 			<encoding>base64</encoding>
 		</field>
+		<field>
+			<name>RBL</name>
+			<type>listtopic</type>
+		</field>
+		<field>
+			<fielddescr>RBL Override</fielddescr>
+			<fieldname>rbl_override</fieldname>
+			<description><![CDATA[Paste domain name one per line.<br>
+						Hint:<br>
+							fastweb.it OK<br>
+  							debian.org OK]]>
+			</description>
+			<type>textarea</type>
+			<cols>70</cols>
+			<rows>10</rows>
+			<encoding>base64</encoding>
+		</field>
 	</fields>
 	<custom_php_install_command>
 		postfix_php_install_command();
