@@ -16,7 +16,7 @@
 		<version>0.99</version>
 		<status>Beta</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/someprogram/someprogram.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/someprogram/someprogram.xml</config_file>
 		<maintainer>me@example.com</maintainer>
 		<configurationfile>someprogram.xml</configurationfile>
 		<build_pbi>
@@ -24,7 +24,7 @@
 			<port>net/someprogram</port>
 			<ports_after>www/somethingelsetoputinthepbi www/somethingelse</ports_after>
 		</build_pbi>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>someprogram-0.99-amd64.pbi</depends_on_package_pbi>
 	</package>
 -->
@@ -37,8 +37,8 @@
 		<version>1.8 pkg v0.3.2</version>
 		<status>Beta</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/asterisk/asterisk.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/asterisk/asterisk.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>asterisk18-1.8.25.0.tbz</depends_on_package>
 		<depends_on_package>openldap-client-2.4.38.tbz</depends_on_package>
 		<depends_on_package_pbi>asterisk-1.8.26.1-amd64.pbi</depends_on_package_pbi>
@@ -56,9 +56,9 @@
 		<version>9.9.5 pkg v 0.3.2</version>
 		<status>RC</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/bind/bind.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/bind/bind.xml</config_file>
 		<configurationfile>bind.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>bind-9.9.5_8-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/dns/bind99</build_port_path>
 		<build_pbi>
@@ -73,7 +73,7 @@
 		<descr>Allows you to create and overwrite files from the GUI.</descr>
 		<category>File Management</category>
 		<pkginfolink>https://doc.pfsense.org/index.php/Filer_package</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/filer/filer.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/filer/filer.xml</config_file>
 		<version>0.60</version>
 		<status>Beta</status>
 		<required_version>2.0</required_version>
@@ -86,8 +86,8 @@
 		<descr>Block countries - This has been replaced by pfblocker. &lt;u&gt;This is a legacy app&lt;/u&gt;</descr>
 		<category>Firewall</category>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,25732.0.html</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/countryblock/countryblock.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/countryblock/countryblock.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/8/All/</depends_on_package_base_url>
 		<version>0.2.4</version>
 		<status>Beta</status>
 		<required_version>1.2.2</required_version>
@@ -100,7 +100,7 @@
 		<descr>PHP File Manager</descr>
 		<category>Diagnostics</category>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,26974.0.html</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/filemgr/filemgr.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/filemgr/filemgr.xml</config_file>
 		<version>0.1.3</version>
 		<status>Beta</status>
 		<required_version>2.0</required_version>
@@ -116,8 +116,8 @@
 			pfBlocker replaces Countryblock and IPblocklist.]]></descr>
 		<category>Firewall</category>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,42543.0.html</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/pf-blocker/pfblocker.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/pf-blocker/pfblocker.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>1.0.2</version>
 		<status>Release</status>
 		<required_version>2.0</required_version>
@@ -133,7 +133,7 @@
 		<version>0.5</version>
 		<status>BETA</status>
 		<required_version>1.2.3</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/anyterm/anyterm.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/anyterm/anyterm.xml</config_file>
 		<configurationfile>anyterm.xml</configurationfile>
 	</package>
 	<package>
@@ -147,9 +147,9 @@
 		<version>1.4.24 pkg v 1.2.4</version>
 		<status>Release</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/haproxy/haproxy.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/haproxy/haproxy.xml</config_file>
 		<configurationfile>haproxy.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>haproxy-1.4.24.tbz</depends_on_package>
 		<depends_on_package_pbi>haproxy-1.4.24-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net/haproxy</build_port_path>
@@ -165,9 +165,9 @@
 		<version>1.4.24 pkg v 1.1</version>
 		<status>Release</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/haproxy-legacy/haproxy.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/haproxy-legacy/haproxy.xml</config_file>
 		<configurationfile>haproxy.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>haproxy-1.4.24.tbz</depends_on_package>
 		<depends_on_package_pbi>haproxy-1.4.24-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -182,9 +182,9 @@
 		<version>1.5-dev22 pkg v 0.8</version>
 		<status>Release</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/haproxy-devel/haproxy.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/haproxy-devel/haproxy.xml</config_file>
 		<configurationfile>haproxy.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>haproxy-1.4.22.tbz</depends_on_package>
 		<depends_on_package_pbi>haproxy-devel-1.5-dev22-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net/haproxy-devel</build_port_path>
@@ -207,8 +207,8 @@
 		<version>2.4.9_1 pkg v0.3</version>
 		<status>ALPHA</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/apache_mod_security-dev/apache_virtualhost.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/apache_mod_security-dev/apache_virtualhost.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>db42-4.2.52_5.tbz</depends_on_package>
 		<depends_on_package>gdbm-1.9.1.tbz</depends_on_package>
 		<depends_on_package>apr-ipv6-devrandom-gdbm-db42-1.4.5.1.3.12_1.tbz</depends_on_package>
@@ -253,8 +253,8 @@
 		<version>0.1.4</version>
 		<status>ALPHA</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/apache_mod_security/apache_mod_security.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/apache_mod_security/apache_mod_security.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>db42-4.2.52_5.tbz</depends_on_package>
 		<depends_on_package>gdbm-1.9.1.tbz</depends_on_package>
 		<depends_on_package>apr-ipv6-devrandom-gdbm-db42-1.4.5.1.3.12_1.tbz</depends_on_package>
@@ -295,8 +295,8 @@
 		<website>http://www.pureftpd.org/</website>
 		<descr>*DO NOT RUN THIS ON A FIREWALL. USE A DEDICATED MACHINE!* Pure FTPd Server is a fast, production quality, standards-conformant FTP server based on Troll-FTPd. It has no known vulnerabilities, is trivial to set up, and is especially designed for modern kernels. Features include PAM support, IPv6, chroot()ed home directories, virtual domains, built-in 'ls', FXP protocol, anti-warez system, bandwidth throttling, restricted ports for passive downloads, an LDAP backend, XML output, and more.</descr>
 		<category>FTP</category>
-		<config_file>https://packages.pfsense.org/packages/config/pure-ftpd.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/pure-ftpd.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>pure-ftpd-1.0.35.tbz</depends_on_package>
 		<depends_on_package_pbi>pure-ftpd-1.0.36-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/ftp/pure-ftpd</build_port_path>
@@ -317,7 +317,7 @@
 		<website>http://www.avahi.org/</website>
 		<descr>Avahi is a system which facilitates service discovery on a local network. This means that you can plug your laptop or computer into a network and instantly be able to view other people who you can chat with, find printers to print to or find files being shared. This kind of technology is already found in Apple MacOS X (branded Rendezvous, Bonjour and sometimes Zeroconf) and is very convenient. Avahi is mainly based on Lennart Poettering's flexmdns mDNS implementation for Linux which has been discontinued in favour of Avahi.</descr>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<build_port_path>/usr/ports/net/avahi</build_port_path>
 		<build_port_path>/usr/ports/net/avahi-app</build_port_path>
 		<build_options>avahi_UNSET_FORCE=GTK;cairo_SET_FORCE=X11 XCB</build_options>
@@ -329,7 +329,7 @@
 		<version>0.6.31 pkg v1.02</version>
 		<status>ALPHA</status>
 		<required_version>1.2.3</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/avahi/avahi.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/avahi/avahi.xml</config_file>
 		<configurationfile>avahi.xml</configurationfile>
 		<after_install_info>Please visit the Avahi settings tab and select which interfaces you do not wish Avahi to listen on and click save to start the service.</after_install_info>
 	</package>
@@ -338,7 +338,7 @@
 		<website>http://www.ntop.org/</website>
 		<descr>ntop is a network probe that shows network usage in a way similar to what top does for processes. In interactive mode, it displays the network status on the user's terminal. In Web mode it acts as a Web server, creating an HTML dump of the network status. It sports a NetFlow/sFlow emitter/collector, an HTTP-based client interface for creating ntop-centric monitoring applications, and RRD for persistently storing traffic statistics.</descr>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>ntop-5.0.1-amd64.pbi</depends_on_package_pbi>
 		<depends_on_package>rrdtool-1.2.30_2.tbz</depends_on_package>
 		<depends_on_package>gdbm-1.9.1.tbz</depends_on_package>
@@ -363,7 +363,7 @@
 		<version>5.0.1 v2.4</version>
 		<status>BETA</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/ntop2/ntop.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/ntop2/ntop.xml</config_file>
 		<configurationfile>ntop.xml</configurationfile>
 		<noembedded>true</noembedded>
 	</package>
@@ -373,8 +373,8 @@
 		<descr>FreeSWITCH is an open source telephony platform designed to facilitate the creation of voice and chat driven products scaling from a soft-phone up to a soft-switch.  It can be used as a simple switching engine, a PBX, a media gateway or a media server to host IVR applications using simple scripts or XML to control the callflow. </descr>
 		<category>Services</category>
 		<pkginfolink>https://doc.pfsense.org/index.php/FreeSWITCH</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/freeswitch/freeswitch.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/freeswitch/freeswitch.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>freeswitch-1.0.6_1-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net/freeswitch</build_port_path>
 		<version>0.8.3.6</version>
@@ -391,8 +391,8 @@
 		<descr>FreeSWITCH package development version.</descr>
 		<category>Services</category>
 		<pkginfolink>https://doc.pfsense.org/index.php/FreeSWITCH</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/freeswitch_dev/freeswitch.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/freeswitch_dev/freeswitch.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<build_port_path>/usr/ports/net/freeswitch</build_port_path>
 		<version>0.9.7.26</version>
 		<status>Beta</status>
@@ -407,8 +407,8 @@
 		<descr>Track things you want to note for this system.</descr>
 		<category>Status</category>
 		<pkginfolink/>
-		<config_file>https://packages.pfsense.org/packages/config/notes/notes.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/notes/notes.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>0.2.4</version>
 		<status>Alpha</status>
 		<required_version>1.2.1</required_version>
@@ -421,8 +421,8 @@
 		<descr>Trivial File Transport Protocol is a very simple file transfer protocol. Often used with routers, voip phones and more.</descr>
 		<category>Services</category>
 		<pkginfolink/>
-		<config_file>https://packages.pfsense.org/packages/config/tftp2/tftp.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/tftp2/tftp.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>2.0</version>
 		<status>Stable</status>
 		<required_version>2.0</required_version>
@@ -434,8 +434,8 @@
 		<descr>PHP run as a service it can do anything PHP can do including but not limited to monitoring files, CPU, RAM, and send alerts to the syslog.</descr>
 		<category>Services</category>
 		<pkginfolink>https://doc.pfsense.org/index.php/PHPService</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/phpservice/phpservice.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/phpservice/phpservice.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>0.4.1</version>
 		<status>Beta</status>
 		<required_version>1.2.1</required_version>
@@ -448,8 +448,8 @@
 		<descr>Tool to Backup and Restore files and directories.</descr>
 		<category>System</category>
 		<pkginfolink></pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/backup/backup.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/backup/backup.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>0.1.5</version>
 		<status>Beta</status>
 		<required_version>1.2</required_version>
@@ -462,8 +462,8 @@
 		<descr>The cron utility is used to manage commands on a schedule.</descr>
 		<category>Services</category>
 		<pkginfolink></pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/cron/cron.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/cron/cron.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>0.1.8</version>
 		<status>Beta</status>
 		<required_version>1.2</required_version>
@@ -476,8 +476,8 @@
 		<descr>It is a web server package that can host HTML, Javascript, CSS, and PHP. It uses the lighttpd web server that is already installed. It uses PHP5 in FastCGI mode and has access to PHP Data Ojbects and PDO SQLite.</descr>
 		<category>Services</category>
 		<pkginfolink>https://doc.pfsense.org/index.php/vhosts</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/vhosts/vhosts.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/vhosts/vhosts.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<version>0.7.4</version>
 		<status>Stable</status>
 		<required_version>1.2.3</required_version>
@@ -490,7 +490,7 @@
 		<website>http://www.snort.org</website>
 		<descr>Snort is an open source network intrusion prevention and detection system (IDS/IPS). Combining the benefits of signature, protocol, and anomaly-based inspection.</descr>
 		<category>Security</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>mysql55-client-5.5.35.tbz</depends_on_package>
 		<depends_on_package>barnyard2-1.13.tbz</depends_on_package>
 		<depends_on_package>libnet-1.1.6_1,1.tbz </depends_on_package>
@@ -511,7 +511,7 @@
 			<ports_after>security/barnyard2</ports_after>
 		</build_pbi>
 		<build_options>barnyard2_UNSET=ODBC PGSQL PRELUDE;barnyard2_SET=GRE IPV6 MPLS MYSQL PORT_PCAP;snort_SET=TARGETBASED PERFPROFILE SOURCEFIRE FLEXRESP3 GRE IPV6 MPLS NORMALIZER ZLIB;snort_UNSET=PULLEDPORK;perl_SET=THREADS;NOPORTDOCS=true</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/snort/snort.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/snort/snort.xml</config_file>
 		<version>2.9.6.0 pkg v3.0.6</version>
 		<required_version>2.0</required_version>
 		<status>Stable</status>
@@ -523,8 +523,8 @@
 		<website>http://www.olsr.org/</website>
 		<descr>The olsr.org OLSR daemon is an implementation of the Optimized Link State Routing protocol. OLSR is a routing protocol for mobile ad-hoc networks. The protocol is pro-active, table driven and utilizes a technique called multipoint relaying for message flooding.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/olsrd.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/olsrd.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>olsrd-0.6.2.tbz</depends_on_package>
 		<depends_on_package_pbi>olsrd-0.6.3-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net/olsrd</build_port_path>
@@ -535,10 +535,10 @@
 	</package>
 	<package>
 		<name>routed</name>
-		<website>https://packages.pfsense.org/</website>
+		<website>http://packages.nanosistemi.com/</website>
 		<descr>RIP v1 and v2 daemon.</descr>
 		<category>Network Management</category>
-		<config_file>https://packages.pfsense.org/packages/config/routed/routed.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/routed/routed.xml</config_file>
 		<version>1.1</version>
 		<status>Stable</status>
 		<required_version>2.1</required_version>
@@ -549,8 +549,8 @@
 		<website>http://www.openbsd.org/spamd/</website>
 		<descr>Tarpits like spamd are fake SMTP servers, which accept connections but don't deliver mail. Instead, they keep the connections open and reply very slowly. If the peer is patient enough to actually complete the SMTP dialogue (which will take ten minutes or more), the tarpit returns a 'temporary error' code (4xx), which indicates that the mail could not be delivered successfully and that the sender should keep the mail in their queue and retry again later.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/spamd/spamd.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/spamd/spamd.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>spamd-4.9.1.tbz</depends_on_package>
 		<depends_on_package_pbi>spamd-4.9.1-amd64.pbi</depends_on_package_pbi>
 		<version>4.9.1 v1.1</version>
@@ -592,9 +592,9 @@
 						For all non-commercial it's free, without cost.<br />
 						For all commercial use visit dansguardian website to get a licence.]]></descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/dansguardian/dansguardian.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/dansguardian/dansguardian.xml</config_file>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,43786.0.html</pkginfolink>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>dansguardian-2.12.0.3.tbz</depends_on_package>
 		<depends_on_package>ca_root_nss-3.14.1.tbz</depends_on_package>
 		<depends_on_package_pbi>dansguardian-2.12.0.3_2-amd64.pbi</depends_on_package_pbi>
@@ -614,9 +614,9 @@
 		<descr><![CDATA[MailScanner is an e-mail security and anti-spam package for e-mail gateway systems.<br />
 						This is a level3 mail scanning tool with high CPU load.]]></descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/mailscanner/mailscanner.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/mailscanner/mailscanner.xml</config_file>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,43687.0.html</pkginfolink>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>dcc-dccd-1.3.141.tbz</depends_on_package>
 		<depends_on_package>perl5-5.16.3_4.tbz</depends_on_package>
 		<depends_on_package>pyzor-0.5.0_3.tbz</depends_on_package>
@@ -644,8 +644,8 @@
 		<website>http://siproxd.sourceforge.net/</website>
 		<descr>Proxy for handling NAT of multiple SIP devices to a single public IP.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/siproxd.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/siproxd.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>siproxd-0.8.0.tbz</depends_on_package>
 		<depends_on_package_pbi>siproxd-0.8.0-amd64.pbi</depends_on_package_pbi>
 		<pkginfolink>https://doc.pfsense.org/index.php/Siproxd_package</pkginfolink>
@@ -659,7 +659,7 @@
 		<name>OpenBGPD</name>
 		<descr>OpenBGPD is a FREE implementation of the Border Gateway Protocol, Version 4. It allows ordinary machines to be used as routers exchanging routes with other systems speaking the BGP protocol. -- WARNING! Installs files to the same place as Quagga OSPF. Installing both will result in a broken state, remove this package before installing Quagga OSPF.</descr>
 		<category>NET</category>
-		<config_file>https://packages.pfsense.org/packages/config/openbgpd/openbgpd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/openbgpd/openbgpd.xml</config_file>
 		<build_port_path>/usr/ports/net/openbgpd</build_port_path>
 		<build_pbi>
 			<port>net/openbgpd</port>
@@ -669,7 +669,7 @@
 		<pkginfolink>https://doc.pfsense.org/index.php/OpenBGPD_package</pkginfolink>
 		<required_version>1.3</required_version>
 		<configurationfile>openbgpd.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>openbgpd-5.2.20121209.tbz</depends_on_package>
 		<depends_on_package_pbi>openbgpd-5.2.20121209-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -680,10 +680,10 @@
 		<version>0.5.2</version>
 		<category>Routing</category>
 		<status>DEPRECATED</status>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>openospfd-4.6.tbz</depends_on_package>
 		<depends_on_package_pbi>openospfd-4.6-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/openospfd/openospfd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/openospfd/openospfd.xml</config_file>
 		<build_port_path>/usr/ports/net/openospfd</build_port_path>
 		<build_port_path>/usr/ports/devel/libevent</build_port_path>
 		<build_pbi>
@@ -702,7 +702,7 @@
 		<category>Network Report</category>
 		<version>1.8.2 pkg v.2.33</version>
 		<maintainer>dv_serg@mail.ru</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>lightsquid-1.8_2.tbz</depends_on_package>
 		<depends_on_package>perl-5.14.2_2.tbz</depends_on_package>
 		<depends_on_package_pbi>lightsquid-1.8_2-amd64.pbi</depends_on_package_pbi>
@@ -714,7 +714,7 @@
 		<build_options>WITHOUT_DEBUGGING=true;WITHOUT_GDBM=true;WITHOUT_PERL_MALLOC=true;WITH_PERL_64BITINT=true;WITHOUT_THREADS=true;WITHOUT_MULTIPLICITY=true;WITHOUT_SUIDPERL=true;WITHOUT_SITECUSTOMIZE=true;WITH_USE_PERL=true;WITH_GDSUPPORT=true</build_options>
 		<status>RC1</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/lightsquid/lightsquid.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/lightsquid/lightsquid.xml</config_file>
 		<pkginfolink></pkginfolink>
 		<configurationfile>lightsquid.xml</configurationfile>
 		<noembedded>true</noembedded>
@@ -725,9 +725,9 @@
 		<descr><![CDATA[Sarg - Squid Analysis Report Generator is a tool that allow you to view "where" your users are going to on the Internet.<br />
 						Sarg provides many informations about Proxy(squid,squidguard or dansguardian) users activities: times, bytes, sites, etc...]]></descr>
 		<category>Network Report</category>
-		<config_file>https://packages.pfsense.org/packages/config/sarg/sarg.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/sarg/sarg.xml</config_file>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,47765.0.html</pkginfolink>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>sarg-2.3.6_2.tbz</depends_on_package>
 		<depends_on_package>gd-2.0.35_8,1.tbz</depends_on_package>
 		<depends_on_package_pbi>sarg-2.3.6_2-amd64.pbi</depends_on_package_pbi>
@@ -747,9 +747,9 @@
 						If it receives one with MAC-IP pair, which is not listed in 'ethers' file, it will send ARP reply with configured fake address.<br />
 						This will prevent not permitted host to work properly in local ethernet segment.]]></descr>
 		<category>Security</category>
-		<config_file>https://packages.pfsense.org/packages/config/ipguard/ipguard.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/ipguard/ipguard.xml</config_file>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,49917.msg263664.html#msg263664</pkginfolink>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
  		<depends_on_package>ipguard-1.04.tbz</depends_on_package>
 		<depends_on_package_pbi>ipguard-1.04-amd64.pbi</depends_on_package_pbi>
 		<version>1.0.4 pkg v.0.1</version>
@@ -769,9 +769,9 @@
 		<version>2.1.5 pkg v.1.0</version>
 		<status>Release</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/varnish64/varnish_backends.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/varnish64/varnish_backends.xml</config_file>
 		<configurationfile>varnish_backends.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>varnish-2.1.5_2-amd64.pbi gcc-4.2.5.20090325_5-amd64.pbi</depends_on_package_pbi>
 		<depends_on_package>varnish-2.1.5.tbz</depends_on_package>
 		<depends_on_package>gcc-4.2.5.20090325_5.tbz</depends_on_package>
@@ -790,9 +790,9 @@
 		<version>3.0.4 pkg v.0.2.1</version>
 		<status>RC</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/varnish3/varnish_backends.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/varnish3/varnish_backends.xml</config_file>
 		<configurationfile>varnish_backends.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>varnish-3.0.4-amd64.pbi</depends_on_package_pbi>
 		<depends_on_package>varnish-3.0.2.tbz</depends_on_package>
 		<depends_on_package>pcre-8.21_1.tbz</depends_on_package>
@@ -810,7 +810,7 @@
 		<descr>Vnstat is a console-based network traffic monitor&lt;br /&gt;The vnstat PHP frontend and vnstati adds a more user friendly way of displaying traffic usage.</descr>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,14179.0.html</pkginfolink>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>vnstat-1.11.tbz</depends_on_package>
 		<depends_on_package_pbi>vnstat-1.11_1-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net/vnstat</build_port_path>
@@ -818,7 +818,7 @@
 		<status>Stable</status>
 		<required_version>2.0</required_version>
 		<maintainer>bryan.paradis@gmail.com</maintainer>
-		<config_file>https://packages.pfsense.org/packages/config/vnstat2/vnstat2.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/vnstat2/vnstat2.xml</config_file>
 		<configurationfile>vnstat2.xml</configurationfile>
 		<after_install_info></after_install_info>
 	</package>
@@ -830,11 +830,11 @@
 		<version>2.5.4</version>
 		<status>Beta</status>
 		<required_version>1.0</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>mbmon-205_5.tbz</depends_on_package>
 		<depends_on_package_pbi>mbmon-205_6-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/sysutils/mbmon</build_port_path>
-		<config_file>https://packages.pfsense.org/packages/config/phpsysinfo/phpsysinfo.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/phpsysinfo/phpsysinfo.xml</config_file>
 		<configurationfile>phpsysinfo.xml</configurationfile>
 		<noembedded>true</noembedded>
 	</package>
@@ -847,9 +847,9 @@
 		<status>Beta</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/Tinydns_package</pkginfolink>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/tinydns/tinydns.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/tinydns/tinydns.xml</config_file>
 		<configurationfile>tinydns.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>ucspi-tcp-0.88_2.tbz</depends_on_package>
 		<depends_on_package>daemontools-0.76_16.tbz</depends_on_package>
 		<depends_on_package>djbdns-ipv6-1.05.b23_13.tbz</depends_on_package>
@@ -872,9 +872,9 @@
 		<status>Stable</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/Open_VM_Tools_package</pkginfolink>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/open-vm-tools_2/open-vm-tools.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/open-vm-tools_2/open-vm-tools.xml</config_file>
 		<configurationfile>open-vm-tools.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<build_port_path>/usr/ports/emulators/open-vm-tools-nox11/</build_port_path>
 		<depends_on_package>open-vm-tools-nox11-425873_3,1.tbz</depends_on_package>
 		<depends_on_package>icu-50.1.2.tbz</depends_on_package>
@@ -912,7 +912,7 @@
 		<status>Stable</status>
 		<required_version>1.2</required_version>
 		<pkginfolink>https://doc.pfsense.org/index.php/AutoConfigBackup</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/autoconfigbackup/autoconfigbackup.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/autoconfigbackup/autoconfigbackup.xml</config_file>
 		<configurationfile>autoconfigbackup.xml</configurationfile>
 	</package>
 	<package>
@@ -923,9 +923,9 @@
 		<version>2.09.1 v1.1</version>
 		<status>Stable</status>
 		<required_version>1.0.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/arping/arping.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/arping/arping.xml</config_file>
 		<configurationfile>arping.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>arping-2.09_1.tbz</depends_on_package>
 		<depends_on_package_pbi>arping-2.09_1-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net/arping</build_port_path>
@@ -936,11 +936,11 @@
 		<maintainer>jimp@pfsense.org</maintainer>
 		<descr>NMap is a utility for network exploration or security auditing. It supports ping scanning (determine which hosts are up), many port scanning techniques (determine what services the hosts are offering), version detection (determine what application/service is runing on a port), and TCP/IP fingerprinting (remote host OS or device identification). It also offers flexible target and port specification, decoy/stealth scanning, SunRPC scanning, and more. Most Unix and Windows platforms are supported in both GUI and command line modes. Several popular handheld devices are also supported, including the Sharp Zaurus and the iPAQ.</descr>
 		<category>Security</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>lua-5.1.5_4.tbz</depends_on_package>
 		<depends_on_package>nmap-6.25_1.tbz</depends_on_package>
 		<depends_on_package_pbi>nmap-6.40_2-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/nmap/nmap.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/nmap/nmap.xml</config_file>
 		<version>nmap-6.40_2 pkg v1.2</version>
 		<status>Stable</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/Nmap_package</pkginfolink>
@@ -959,7 +959,7 @@
 		<required_version>2.0</required_version>
 		<status>BETA</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/IMSpector_package</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/imspector/imspector.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/imspector/imspector.xml</config_file>
 		<configurationfile>imspector.xml</configurationfile>
 		<build_options>imspector_SET_FORCE=PLUGINS;imspector_UNSET_FORCE=IPFW</build_options>
 		<depends_on_package_base_url>http://e-sac.siteseguro.ws/packages/amd64/8/All/</depends_on_package_base_url>
@@ -976,9 +976,9 @@
 		<status>BETA</status>
 		<required_version>2.0</required_version>
 		<maintainer>rswagoner@gmail.com</maintainer>
-		<config_file>https://packages.pfsense.org/packages/config/nut/nut.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/nut/nut.xml</config_file>
 		<configurationfile>nut.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>nut-2.6.4.tbz</depends_on_package>
 		<depends_on_package_pbi>nut-2.6.5_1-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/sysutils/nut</build_port_path>
@@ -993,22 +993,22 @@
 		<maintainer>ptaylor@addressplus.net</maintainer>
 		<required_version>1.2.1</required_version>
 		<status>BETA</status>
-		<config_file>https://packages.pfsense.org/packages/config/diag_states_pt/diag_new_states.xml</config_file>
-		<configurationfile>https://packages.pfsense.org/packages/config/diag_states_pt/diag_new_states.xml</configurationfile>
+		<config_file>http://packages.nanosistemi.com/packages/config/diag_states_pt/diag_new_states.xml</config_file>
+		<configurationfile>http://packages.nanosistemi.com/packages/config/diag_states_pt/diag_new_states.xml</configurationfile>
 	</package>
 	<package>
 		<name>darkstat</name>
 		<website>http://dmr.ath.cx/net/darkstat/</website>
 		<descr>darkstat is a network statistics gatherer. It's a packet sniffer that runs as a background process on a cable/DSL router, gathers all sorts of statistics about network usage, and serves them over HTTP.</descr>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>darkstat-3.0.714.tbz</depends_on_package>
 		<depends_on_package_pbi>darkstat-3.0.715-amd64.pbi</depends_on_package_pbi>
 		<version>3.0.714</version>
 		<status>Stable</status>
 		<required_version>1.2.1</required_version>
 		<maintainer>sullrich+pfsp@gmail.com</maintainer>
-		<config_file>https://packages.pfsense.org/packages/config/darkstat/darkstat.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/darkstat/darkstat.xml</config_file>
 		<configurationfile>darkstat.xml</configurationfile>
 		<build_port_path>/usr/ports/net-mgmt/darkstat</build_port_path>
 	</package>
@@ -1017,8 +1017,8 @@
 		<website>http://www.mindrot.org/pfflowd.html</website>
 		<descr>pfflowd converts OpenBSD PF status messages (sent via the pfsync interface) to Cisco NetFlow datagrams. These datagrams may be sent (via UDP) to a host of one's choice. Utilising the OpenBSD stateful packet filter infrastructure means that flow tracking is very fast and accurate.</descr>
 		<category>Network Management</category>
-		<config_file>https://packages.pfsense.org/packages/config/pfflowd.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/pfflowd.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>pfflowd-0.8.tbz</depends_on_package>
 		<depends_on_package_pbi>pfflowd-0.8-amd64.pbi</depends_on_package_pbi>
 		<version>0.8.3</version>
@@ -1033,14 +1033,14 @@
 		<descr>RFC1413 auth/identd daemon with fixed fake reply</descr>
 		<website>http://www.webweaving.org/widentd</website>
 		<category>Services</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>widentd-1.03_1.tbz</depends_on_package>
 		<depends_on_package_pbi>widentd-1.03_1-amd64.pbi</depends_on_package_pbi>
 		<version>1.03_1</version>
 		<status>Stable</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/Widentd_package</pkginfolink>
 		<required_version>1.2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/widentd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/widentd.xml</config_file>
 		<configurationfile>widentd.xml</configurationfile>
 		<build_port_path>/usr/ports/net/widentd</build_port_path>
 	</package>
@@ -1053,11 +1053,11 @@
 		<status>Beta</status>
 		<required_version>2.0</required_version>
 		<maintainer>none</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>freeradius-1.1.8_4.tbz</depends_on_package>
 		<depends_on_package>libltdl-2.4_1.tbz</depends_on_package>
 		<depends_on_package_pbi>freeradius-1.1.8_5-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/freeradius.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/freeradius.xml</config_file>
 		<configurationfile>freeradius.xml</configurationfile>
 		<build_port_path>/usr/ports/net/freeradius</build_port_path>
 		<build_port_path>/usr/ports/devel/libltdl</build_port_path>
@@ -1080,13 +1080,13 @@
 		<status>RC1</status>
 		<required_version>2.0</required_version>
 		<maintainer>nachtfalkeaw@web.de</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>freeradius-2.1.12_1.tbz</depends_on_package>
 		<depends_on_package_pbi>freeradius-2.2.4_1-amd64.pbi</depends_on_package_pbi>
 		<depends_on_package>mysql-client-5.1.63.tbz</depends_on_package>
 		<depends_on_package>postgresql-client-9.0.8.tbz</depends_on_package>
 		<depends_on_package>openldap-sasl-client-2.4.31_1.tbz</depends_on_package>
-		<config_file>https://packages.pfsense.org/packages/config/freeradius2/freeradius.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/freeradius2/freeradius.xml</config_file>
 		<configurationfile>freeradius.xml</configurationfile>
 		<after_install_info>Please visit Services: FreeRADIUS</after_install_info>
 		<!-- Try to use the new PBI build syntax here, it may help it pick up the right libs inside the single PBI rather than using multiple. -->
@@ -1104,12 +1104,12 @@
 		<version>2.0.1_5 pkg v.0.3</version>
 		<status>BETA</status>
 		<required_version>1.2.1</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>bandwidthd-2.0.1_5.tbz</depends_on_package>
 		<depends_on_package>libpcap-1.1.1.tbz</depends_on_package>
 		<depends_on_package>postgresql-client-8.4.12.tbz</depends_on_package>
 		<depends_on_package_pbi>bandwidthd-2.0.1_5-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/bandwidthd/bandwidthd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/bandwidthd/bandwidthd.xml</config_file>
 		<configurationfile>bandwidthd.xml</configurationfile>
 		<build_port_path>/usr/ports/net/libpcap</build_port_path>
 		<build_port_path>/usr/ports/databases/postgresql84-client</build_port_path>
@@ -1125,14 +1125,14 @@
 		<website>http://www.stunnel.org/</website>
 		<descr>An SSL encryption wrapper between remote client and local or remote servers. </descr>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>stunnel-4.43.tbz</depends_on_package>
 		<depends_on_package_pbi>stunnel-4.54-amd64.pbi</depends_on_package_pbi>
 		<version>4.43</version>
 		<status>Stable</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/Stunnel_package</pkginfolink>
 		<required_version>1.2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/stunnel.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/stunnel.xml</config_file>
 		<configurationfile>stunnel.xml</configurationfile>
 		<build_port_path>/usr/ports/security/stunnel</build_port_path>
 		<build_options>WITHOUT_FORK=true;WITH_PTHREAD=true;WITHOUT_UCONTEXT=true;WITHOUT_IPV6=true;WITH_LIBWRAP=true;WITHOUT_SSL_PORT=true</build_options>
@@ -1142,8 +1142,8 @@
 		<website>http://dast.nlanr.net/Projects/Iperf/</website>
 		<descr>Iperf is a tool for testing network throughput, loss, and jitter.</descr>
 		<category>Network Management</category>
-		<config_file>https://packages.pfsense.org/packages/config/iperf.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/iperf.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>iperf-2.0.5.tbz</depends_on_package>
 		<depends_on_package_pbi>iperf-2.0.5-amd64.pbi</depends_on_package_pbi>
 		<version>2.0.5</version>
@@ -1158,8 +1158,8 @@
 		<website>http://freshmeat.net/projects/netio/</website>
 		<descr>This is a network benchmark for DOS, OS/2 2.x, Windows NT/2000 and Unix. It measures the net throughput of a network via NetBIOS and/or TCP/IP protocols (Unix and DOS only support TCP/IP) using various different packet sizes.</descr>
 		<category>Network Management</category>
-		<config_file>https://packages.pfsense.org/packages/config/netio.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/netio.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All</depends_on_package_base_url>
 		<depends_on_package>netio-1.26.tbz</depends_on_package>
 		<depends_on_package_pbi>netio-1.26-amd64.pbi</depends_on_package_pbi>
 		<version>1.26</version>
@@ -1174,13 +1174,13 @@
 		<descr>Enhanced traceroute replacement</descr>
 		<website>http://www.bitwizard.nl/mtr/</website>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>mtr-nox11-0.82.tbz</depends_on_package>
 		<depends_on_package_pbi>mtr-0.85_1-amd64.pbi</depends_on_package_pbi>
 		<version>0.85_1</version>
 		<status>Stable</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/mtr-nox11.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/mtr-nox11.xml</config_file>
 		<configurationfile>mtr-nox11.xml</configurationfile>
 		<build_port_path>/usr/ports/net/mtr</build_port_path>
 		<build_options>mtr_UNSET_FORCE=X11</build_options>
@@ -1194,7 +1194,7 @@
 		<status>Stable</status>
 		<required_version>2</required_version>
 		<maintainer>fernando@netfilter.com.br seth.mos@dds.nl mfuchs77@googlemail.com jimp@pfsense.org</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>squid-2.7.9_3.tbz</depends_on_package>
 		<depends_on_package>squid_radius_auth-1.10.tbz</depends_on_package>
 		<depends_on_package>libwww-5.4.0_4.tbz</depends_on_package>
@@ -1208,7 +1208,7 @@
 			<ports_after>www/squid_radius_auth</ports_after>
 		</build_pbi>
 		<build_options>squid_UNSET_FORCE=DNS_HELPER IPFILTER PINGER STACKTRACES STRICT_HTTP_DESC USERAGENT_LOG WCCPV2;squid_SET=PF LDAP_AUTH NIS_AUTH SASL_AUTH ARP_ACL AUFS CACHE_DIGESTS CARP COSS DELAY_POOLS FOLLOW_XFF HTCP IDENT KERB_AUTH KQUEUE LARGEFILE REFERER_LOG SNMP SSL VIA_DB WCCP;SQUID_UID=proxy;SQUID_GID=proxy</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/squid/squid.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/squid/squid.xml</config_file>
 		<configurationfile>squid.xml</configurationfile>
 	</package>
 	<package>
@@ -1224,7 +1224,7 @@
 		<status>beta</status>
 		<required_version>2.0</required_version>
 		<maintainer>marcellocoutinho@gmail.com fernando@netfilter.com.br seth.mos@dds.nl mfuchs77@googlemail.com jimp@pfsense.org</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>squid-3.1.20.tbz</depends_on_package>
 		<depends_on_package>libwww-5.4.0_4.tbz</depends_on_package>
 		<build_pbi>
@@ -1234,7 +1234,7 @@
 		</build_pbi>
 		<build_options>c-icap_UNSET_FORCE=IPV6;squid_UNSET_FORCE=AUTH_SMB AUTH_SQL DNS_HELPER FS_COSS ESI SNMP ECAP STACKTRACES STRICT_HTTP TP_IPF TP_IPFW VIA_DB DEBUG DOCS EXAMPLES;squid_SET=ARP_ACL AUTH_KERB AUTH_LDAP AUTH_NIS AUTH_SASL CACHE_DIGESTS DELAY_POOLS FOLLOW_XFF TP_PF MSSL_CRTD WCCP WCCPV2 FS_AUFS HTCP ICAP ICMP IDENT IPV6 KQUEUE LARGEFILE SSL SSL_CRTD</build_options>
 		<!--<build_options>WITH_SQUID_KERB_AUTH=true;WITH_SQUID_LDAP_AUTH=true;WITH_SQUID_NIS_AUTH=true;WITH_SQUID_SASL_AUTH=true;WITH_SQUID_IPV6=true;WITH_SQUID_DELAY_POOLS=true;WITH_SQUID_SNMP=true;WITH_SQUID_SSL=true;WITH_SQUID_SSL_CRTD=true;WITH_SQUID_PINGER=true;WITHOUT_SQUID_DNS_HELPER=true;WITH_SQUID_HTCP=true;WITH_SQUID_VIA_DB=true;WITH_SQUID_CACHE_DIGESTS=true;WITHOUT_SQUID_WCCP=true;WITH_SQUID_WCCPV2=true;WITHOUT_SQUID_STRICT_HTTP=true;WITH_SQUID_IDENT=true;WITH_SQUID_REFERER_LOG=true;WITH_SQUID_USERAGENT_LOG=true;WITH_SQUID_ARP_ACL=true;WITH_SQUID_IPFW=true;WITH_SQUID_PF=true;WITHOUT_SQUID_IPFILTER=true;WITH_SQUID_FOLLOW_XFF=true;WITHOUT_SQUID_ECAP=true;WITHOUT_SQUID_ICAP=true;WITHOUT_SQUID_ESI=true;WITH_SQUID_AUFS=true;WITHOUT_SQUID_COSS=true;WITHOUT_SQUID_KQUEUE=true;WITH_SQUID_LARGEFILE=true;WITHOUT_SQUID_STACKTRACES=true;WITHOUT_SQUID_DEBUG=true</build_options>-->
-		<config_file>https://packages.pfsense.org/packages/config/squid3/31/squid.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/squid3/31/squid.xml</config_file>
 		<configurationfile>squid.xml</configurationfile>
 		<depends_on_package_pbi>squid-3.1.22_1-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1251,7 +1251,7 @@
 		<status>beta</status>
 		<required_version>2.0</required_version>
 		<maintainer>marcellocoutinho@gmail.com fernando@netfilter.com.br seth.mos@dds.nl mfuchs77@googlemail.com jimp@pfsense.org</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>squid-3.3.5.tbz</depends_on_package>
 		<depends_on_package>libltdl-2.4.2.tbz</depends_on_package>
 		<depends_on_package>libwww-5.4.0_4.tbz</depends_on_package>
@@ -1265,7 +1265,7 @@
 			<ports_after>www/squid_radius_auth security/clamav www/squidclamav security/ca_root_nss www/c-icap-modules</ports_after>
 		</build_pbi>
 		<build_options>c-icap_UNSET_FORCE=IPV6;squid_UNSET_FORCE=AUTH_SMB AUTH_SQL DNS_HELPER FS_COSS ESI SNMP ECAP STACKTRACES STRICT_HTTP TP_IPF TP_IPFW VIA_DB DEBUG DOCS EXAMPLES AUTH_SASL;squid_SET=ARP_ACL AUTH_KERB AUTH_LDAP AUTH_NIS CACHE_DIGESTS DELAY_POOLS FOLLOW_XFF TP_PF MSSL_CRTD WCCP WCCPV2 FS_AUFS HTCP ICAP ICMP IDENT IPV6 KQUEUE LARGEFILE SSL SSL_CRTD</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/squid3/33/squid.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/squid3/33/squid.xml</config_file>
 		<configurationfile>squid.xml</configurationfile>
 		<depends_on_package_pbi>squid-3.3.10-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1278,10 +1278,10 @@
 		<status>BETA</status>
 		<required_version>1.2.1</required_version>
 		<maintainer>seth.mos@dds.nl</maintainer>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>lcdproc-0.5.5.tbz</depends_on_package>
 		<depends_on_package_pbi>lcdproc-0.5.6-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/lcdproc/lcdproc.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/lcdproc/lcdproc.xml</config_file>
 		<configurationfile>lcdproc.xml</configurationfile>
 		<build_port_path>/usr/ports/sysutils/lcdproc</build_port_path>
 		<build_options>lcdproc_SET=USB</build_options>
@@ -1297,10 +1297,10 @@
 		<required_version>2.0</required_version>
 		<maintainer>michele@nt2.it</maintainer>
 		<pkginfolink>https://forum.pfsense.org/index.php/topic,44034.0.html</pkginfolink>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>lcdproc-0.5.6.tbz</depends_on_package>
 		<depends_on_package_pbi>lcdproc-0.5.6-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/lcdproc-dev/lcdproc.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/lcdproc-dev/lcdproc.xml</config_file>
 		<configurationfile>lcdproc.xml</configurationfile>
 		<build_port_path>/usr/ports/sysutils/lcdproc</build_port_path>
 		<build_options>WITH_USB=true</build_options>
@@ -1311,14 +1311,14 @@
 		<descr>Arpwatch monitors ethernet/ip address pairings. It also logs certain changes to syslog.</descr>
 		<website>http://www-nrg.ee.lbl.gov/</website>
 		<category>Security</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>arpwatch-2.1.a15_6.tbz</depends_on_package>
 		<depends_on_package_pbi>arpwatch-2.1.a15_6-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/net-mgmt/arpwatch</build_port_path>
 		<version>2.1.a15_6 pkg v1.1.2</version>
 		<status>ALPHA</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/arpwatch.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/arpwatch.xml</config_file>
 		<configurationfile>arpwatch.xml</configurationfile>
 		<logging>
 			<facilityname>arpwatch</facilityname>
@@ -1334,7 +1334,7 @@
 		<version>1.4_4 pkg v.1.9.5</version>
 		<status>Beta</status>
 		<required_version>1.1</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>squidGuard-1.4_4.tbz</depends_on_package>
 		<depends_on_package>db41-4.1.25_4.tbz</depends_on_package>
 		<depends_on_package>cyrus-sasl-2.1.26_2.tbz</depends_on_package>
@@ -1347,7 +1347,7 @@
 			<port>www/squidguard</port>
 		</build_pbi>
 		<build_options>squidGuard_UNSET_FORCE=SQUID32 SQUID33;squidGuard_SET=SAMPLE_BL SASL LDAP SQUID27;squid_UNSET_FORCE=DNS_HELPER IPFILTER PINGER STACKTRACES STRICT_HTTP_DESC USERAGENT_LOG WCCPV2;squid_SET=PF LDAP_AUTH NIS_AUTH SASL_AUTH ARP_ACL AUFS CACHE_DIGESTS CARP COSS DELAY_POOLS FOLLOW_XFF HTCP IDENT KERB_AUTH KQUEUE LARGEFILE REFERER_LOG SNMP SSL VIA_DB WCCP;SQUID_UID=proxy;SQUID_GID=proxy</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/squidGuard/squidguard.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/squidGuard/squidguard.xml</config_file>
 		<configurationfile>squidguard.xml</configurationfile>
 	</package>
 	<package>
@@ -1359,7 +1359,7 @@
 		<version>1.5_2 beta</version>
 		<status>Beta</status>
 		<required_version>2.1</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>squidguard-devel-1.5_1-amd64.pbi</depends_on_package_pbi>
 		<build_pbi>
 			<ports_before>databases/db46</ports_before>
@@ -1367,7 +1367,7 @@
 			<custom_name>squidguard-devel</custom_name>
 		</build_pbi>
 		<build_options>squidGuard-devel_UNSET_FORCE=SQUID32 SQUID33;squidGuard-devel_SET=LDAP STRIPNT SQUID27;squid_UNSET_FORCE=DNS_HELPER IPFILTER PINGER STACKTRACES STRICT_HTTP_DESC USERAGENT_LOG WCCPV2;squid_SET=PF LDAP_AUTH NIS_AUTH SASL_AUTH ARP_ACL AUFS CACHE_DIGESTS CARP COSS DELAY_POOLS FOLLOW_XFF HTCP IDENT KERB_AUTH KQUEUE LARGEFILE REFERER_LOG SNMP SSL VIA_DB WCCP;SQUID_UID=proxy;SQUID_GID=proxy</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/squidGuard-devel/squidguard.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/squidGuard-devel/squidguard.xml</config_file>
 		<configurationfile>squidguard.xml</configurationfile>
 	</package>
 	<package>
@@ -1379,7 +1379,7 @@
 		<version>1.4_4 pkg v.1.9.5</version>
 		<status>Experimental</status>
 		<required_version>2.1</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>squidguard-squid3-1.4_4-amd64.pbi</depends_on_package_pbi>
 		<build_pbi>
 			<ports_before>www/squid33 databases/db41 security/cyrus-sasl2</ports_before>
@@ -1387,14 +1387,14 @@
 			<custom_name>squidguard-squid3</custom_name>
 		</build_pbi>
 		<build_options>OPTIONS_SET=FETCH LDAP;squidGuard_UNSET_FORCE=SQUID27;squidGuard_SET=SAMPLE_BL SASL SQUID33;c-icap_UNSET_FORCE=IPV6 squid_UNSET_FORCE=AUTH_SMB AUTH_SQL DNS_HELPER FS_COSS ESI SNMP ECAP STACKTRACES STRICT_HTTP TP_IPF TP_IPFW VIA_DB DEBUG DOCS EXAMPLES;squid_SET=ARP_ACL AUTH_KERB AUTH_LDAP AUTH_NIS AUTH_SASL CACHE_DIGESTS DELAY_POOLS FOLLOW_XFF TP_PF MSSL_CRTD WCCP WCCPV2 FS_AUFS HTCP ICAP ICMP IDENT IPV6 KQUEUE LARGEFILE SSL SSL_CRTD</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/squidGuard/squidguard.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/squidGuard/squidguard.xml</config_file>
 		<configurationfile>squidguard.xml</configurationfile>
 	</package>
 	<package>
 		<name>Zabbix Agent</name>
 		<descr>Monitoring agent.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/zabbix-agent/zabbix-agent.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/zabbix-agent/zabbix-agent.xml</config_file>
 		<version>1.8.10,2 pkg v1.1</version>
 		<status>FINAL</status>
 		<required_version>1.2.3</required_version>
@@ -1406,7 +1406,7 @@
 			<port>net-mgmt/zabbix-agent</port>
 		</build_pbi>
 		<build_options>ca_root_nss_UNSET_FORCE=ETCSYMLINK;zabbix22_SET=LDAP SSH SQLITE;zabbix22_UNSET_FORCE=MYSQL</build_options>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>zabbix-agent-1.8.10,2.tbz</depends_on_package>
 		<depends_on_package_pbi>zabbix-agent-1.8.13-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1414,7 +1414,7 @@
 		<name>Zabbix Proxy</name>
 		<descr>Monitoring agent proxy.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/zabbix-proxy/zabbix-proxy.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/zabbix-proxy/zabbix-proxy.xml</config_file>
 		<version>1.8.8,2 pkg v1.1</version>
 		<status>FINAL</status>
 		<required_version>1.2.3</required_version>
@@ -1426,7 +1426,7 @@
 			<port>net-mgmt/zabbix-proxy</port>
 		</build_pbi>
 		<build_options>ca_root_nss_UNSET_FORCE=ETCSYMLINK;zabbix22_SET=LDAP SSH SQLITE;zabbix22_UNSET_FORCE=MYSQL</build_options>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>zabbix-proxy-1.8.8,2.tbz</depends_on_package>
 		<depends_on_package_pbi>zabbix-proxy-1.8.13-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1434,7 +1434,7 @@
 		<name>OpenVPN Client Export Utility</name>
 		<descr>Allows a pre-configured OpenVPN Windows Client or Mac OSX's Viscosity configuration bundle to be exported directly from pfSense.</descr>
 		<category>Security</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>p7zip-9.20.1.tbz</depends_on_package>
 		<depends_on_package>zip-3.0.tbz</depends_on_package>
 		<depends_on_package_pbi>zip-3.0-amd64.pbi p7zip-9.20.1-amd64.pbi</depends_on_package_pbi>
@@ -1443,7 +1443,7 @@
 		<version>1.2.6</version>
 		<status>RELEASE</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/openvpn-client-export/openvpn-client-export.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/openvpn-client-export/openvpn-client-export.xml</config_file>
 		<configurationfile>openvpn-client-export.xml</configurationfile>
 	</package>
 	<package>
@@ -1452,7 +1452,7 @@
 		<website>http://www.server-side.de/</website>
 		<descr>Antivirus:  HAVP (HTTP Antivirus Proxy) is a proxy with a ClamAV anti-virus scanner. The main aims are continuous, non-blocking downloads and smooth scanning of dynamic and password protected HTTP traffic. Havp antivirus proxy has a parent and transparent proxy mode. It can be used with squid or standalone. And File Scanner for local files.</descr>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>havp-0.91_1.tbz</depends_on_package>
 		<depends_on_package_pbi>havp-0.91_1-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/www/havp</build_port_path>
@@ -1460,7 +1460,7 @@
 		<version>0.91_1 pkg v1.01</version>
 		<status>BETA</status>
 		<required_version>1.2.2</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/havp/havp.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/havp/havp.xml</config_file>
 		<configurationfile>havp.xml</configurationfile>
 		<maintainer>dv_serg@mail.ru</maintainer>
 		<after_install_info>Please check the HAVP settings.</after_install_info>
@@ -1474,7 +1474,7 @@
 		<required_version>1.2.3</required_version>
 		<status>BETA</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/PfJailctl_package</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/jailctl.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/jailctl.xml</config_file>
 		<configurationfile>jailctl.xml</configurationfile>
 		<maintainer>ltning-jailctl@anduin.net</maintainer>
 	</package>
@@ -1487,7 +1487,7 @@
 		<required_version>1.2.3</required_version>
 		<status>BETA</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/PfJailctl_package</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/jail_template.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/jail_template.xml</config_file>
 		<configurationfile>jail_template.xml</configurationfile>
 		<maintainer>ltning-jailctl@anduin.net</maintainer>
 	</package>
@@ -1499,7 +1499,7 @@
 		<status>Beta</status>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<required_version>1.2.3</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/blinkled8/blinkled.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/blinkled8/blinkled.xml</config_file>
 		<configurationfile>blinkled.xml</configurationfile>
 		<pkginfolink>https://doc.pfsense.org/index.php/BlinkLED_Package</pkginfolink>
 		<website>https://doc.pfsense.org/index.php/BlinkLED_Package</website>
@@ -1507,7 +1507,7 @@
 		<build_pbi>
 			<port>sysutils/blinkled</port>
 		</build_pbi>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>blinkled-0.1.tbz</depends_on_package>
 		<depends_on_package_pbi>blinkled-0.1-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1519,14 +1519,14 @@
 		<status>Beta</status>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/gwled/gwled.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/gwled/gwled.xml</config_file>
 		<configurationfile>gwled.xml</configurationfile>
 	</package>
 	<package>
 		<name>Dashboard Widget: HAVP</name>
 		<descr>Dashboard widget for HAVP alerts.</descr>
 		<category>System</category>
-		<config_file>https://packages.pfsense.org/packages/config/widget-havp/widget-havp.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/widget-havp/widget-havp.xml</config_file>
 		<version>0.1</version>
 		<status>BETA</status>
 		<required_version>1.2</required_version>
@@ -1536,7 +1536,7 @@
 		<name>Dashboard Widget: Antivirus Status</name>
 		<descr>Dashboard widget for HAVP status.</descr>
 		<category>System</category>
-		<config_file>https://packages.pfsense.org/packages/config/widget-antivirus/widget-antivirus.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/widget-antivirus/widget-antivirus.xml</config_file>
 		<version>0.1</version>
 		<status>BETA</status>
 		<required_version>1.2</required_version>
@@ -1550,7 +1550,7 @@
 		<status>Beta</status>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<required_version>1.2.3</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/rrd-summary/rrd-summary.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/rrd-summary/rrd-summary.xml</config_file>
 		<configurationfile>rrd-summary.xml</configurationfile>
 	</package>
 	<package>
@@ -1563,9 +1563,9 @@
 		<maintainer>warren@decoy.co.za</maintainer>
 		<required_version>2.0</required_version>
 		<pkginfolink>https://doc.pfsense.org/index.php/Unbound_package</pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/unbound/unbound.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/unbound/unbound.xml</config_file>
 		<configurationfile>unbound.xml</configurationfile>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>unbound-1.4.22.tbz</depends_on_package>
 		<depends_on_package>ldns-1.6.17.tbz</depends_on_package>
 		<depends_on_package>expat-2.1.0.tbz</depends_on_package>
@@ -1593,7 +1593,7 @@
 		<descr>The shellcmd utility is used to manage commands on system startup.</descr>
 		<category>Services</category>
 		<pkginfolink></pkginfolink>
-		<config_file>https://packages.pfsense.org/packages/config/shellcmd/shellcmd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/shellcmd/shellcmd.xml</config_file>
 		<version>0.5</version>
 		<status>Beta</status>
 		<required_version>1.2</required_version>
@@ -1610,7 +1610,7 @@
 		<status>BETA</status>
 		<required_version>2.0</required_version>
 		<maintainer>ey@tm-k.com</maintainer>
-		<config_file>https://packages.pfsense.org/packages/config/widescreen/widescreen.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/widescreen/widescreen.xml</config_file>
 		<configurationfile>widescreen.xml</configurationfile>
 		<!-- Disabling on 2.0.2 and 2.1 since it overwrites the menu -->
 		<maximum_version>2.0.1</maximum_version>
@@ -1620,7 +1620,7 @@
 		<website>http://wiki.nagios.org/index.php/Howtos:nrpe_nsca</website>
 		<descr>NRPE is an addon for Nagios that allows you to execute plugins on remote Linux/Unix hosts. This is useful if you need to monitor local resources/attributes like disk usage, CPU load, memory usage, etc. on a remote host.</descr>
 		<category>Services</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>nrpe-2.12_3.tbz</depends_on_package>
 		<depends_on_package>nagios-plugins-1.4.15_1,1.tbz</depends_on_package>
 		<depends_on_package_pbi>nrpe-2.13_2-amd64.pbi</depends_on_package_pbi>
@@ -1631,7 +1631,7 @@
 			<port>net-mgmt/nrpe</port>
 		</build_pbi>
 		<build_options>nrpe_SET=SSL;nrpe_UNSET_FORCE=ARGS</build_options>
-		<config_file>https://packages.pfsense.org/packages/config/nrpe2/nrpe2.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/nrpe2/nrpe2.xml</config_file>
 		<version>2.12_3 v2.2</version>
 		<status>Beta</status>
 		<required_version>1.2</required_version>
@@ -1643,7 +1643,7 @@
 		<website>https://github.com/sileht/check_mk/blob/master/doc/README</website>
 		<descr><![CDATA[The basic idea of check_mk is to fetch "all" information about a target host at once.<br>For each host to be monitored check_mk is called by Nagios only once per time period.]]></descr>
 		<category>Services</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<build_port_path>/usr/ports/sysutils/muse</build_port_path>
 		<build_port_path>/usr/ports/sysutils/ipmitool</build_port_path>
 		<build_port_path>devel/libstatgrab</build_port_path>
@@ -1652,7 +1652,7 @@
 			<port>sysutils/muse</port>
 		</build_pbi>
 		<build_options></build_options>
-		<config_file>https://packages.pfsense.org/packages/config/checkmk-agent/checkmk.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/checkmk-agent/checkmk.xml</config_file>
 		<version>v0.1</version>
 		<status>RC1</status>
 		<required_version>2.0</required_version>
@@ -1667,7 +1667,7 @@
 		<version>1.0</version>
 		<status>Beta</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/sshdcond/sshdcond.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/sshdcond/sshdcond.xml</config_file>
 		<maintainer>namezero@afim.info</maintainer>
 		<configurationfile>sshdcond.xml</configurationfile>
 	</package>
@@ -1678,7 +1678,7 @@
 		<version>2.0.9</version>
 		<status>Stable</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/mailreport/mailreport.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/mailreport/mailreport.xml</config_file>
 		<configurationfile>mailreport.xml</configurationfile>
 	</package>
 	<package>
@@ -1692,10 +1692,10 @@
 		<website>www.winton.org.uk/zebedee/</website>
 		<maintainer>jorgelustosa@gmail.com marcellocoutinho@gmail.com</maintainer>
 		<required_version>2.0</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/8/All/</depends_on_package_base_url>
 		<depends_on_package>zebedee-2.5.3.tbz</depends_on_package>
 		<depends_on_package_pbi>zebedee-2.5.3-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/zebedee/zebedee.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/zebedee/zebedee.xml</config_file>
 		<configurationfile>zebedee.xml</configurationfile>
 		<build_port_path>/usr/ports/security/zebedee</build_port_path>
 	</package>
@@ -1703,7 +1703,7 @@
 		<name>OpenVPN tap Bridging Fix</name>
 		<descr>Patch to fix OpenVPN tap bridging on 2.0.x. WARNING! Cannot be uninstalled.</descr>
 		<category>System</category>
-		<config_file>https://packages.pfsense.org/packages/config/openvpn_tapfix_20x/openvpn_tapfix_20x.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/openvpn_tapfix_20x/openvpn_tapfix_20x.xml</config_file>
 		<version>0.4</version>
 		<status>BETA</status>
 		<required_version>2.0</required_version>
@@ -1716,10 +1716,10 @@
 		<version>0.99.22.3 v0.6.1</version>
 		<category>Routing</category>
 		<status>BETA</status>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>quagga-0.99.22.3.tbz</depends_on_package>
 		<depends_on_package_pbi>quagga-0.99.22.3-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/quagga_ospfd/quagga_ospfd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/quagga_ospfd/quagga_ospfd.xml</config_file>
 		<build_port_path>/usr/ports/net/quagga</build_port_path>
 		<pkginfolink></pkginfolink>
 		<required_version>2.0</required_version>
@@ -1732,7 +1732,7 @@
 		<version>1.0</version>
 		<category>System</category>
 		<status>RELEASE</status>
-		<config_file>https://packages.pfsense.org/packages/config/systempatches/systempatches.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/systempatches/systempatches.xml</config_file>
 		<pkginfolink></pkginfolink>
 		<required_version>2.0</required_version>
 		<configurationfile>systempatches.xml</configurationfile>
@@ -1746,8 +1746,8 @@
 		<version>5.2.12_3 pkg v 1.0.2</version>
 		<status>Stable</status>
 		<required_version>2.0</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/bacula-client/bacula-client.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/bacula-client/bacula-client.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>bacula-client-5.2.12_3.tbz</depends_on_package>
 		<depends_on_package_pbi>bacula-5.2.12_3-amd64.pbi</depends_on_package_pbi>
 		<build_port_path>/usr/ports/sysutils/bacula-client</build_port_path>
@@ -1767,14 +1767,14 @@
 		<version>2.3_4</version>
 		<status>Beta</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/urlsnarf/urlsnarf.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/urlsnarf/urlsnarf.xml</config_file>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<configurationfile>urlsnarf.xml</configurationfile>
 		<build_pbi>
 			<ports_before>net/libnet10</ports_before>
 			<port>security/dsniff</port>
 		</build_pbi>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>dsniff-2.3_4-amd64.pbi</depends_on_package_pbi>
 	</package>
 	<package>
@@ -1786,13 +1786,13 @@
 		<version>0.17</version>
 		<status>Beta</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/iftop/iftop.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/iftop/iftop.xml</config_file>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<configurationfile>iftop.xml</configurationfile>
 		<build_pbi>
 			<port>net-mgmt/iftop</port>
 		</build_pbi>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>iftop-0.17-amd64.pbi</depends_on_package_pbi>
 	</package>
 	<package>
@@ -1804,7 +1804,7 @@
 		<version>1.9.0_1</version>
 		<status>Beta</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/git/git.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/git/git.xml</config_file>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<configurationfile>git.xml</configurationfile>
 		<build_options>git_UNSET_FORCE=GITWEB GUI HTMLDOCS CVS P4 SVN;git_SET=CONTRIB CURL ETCSHELLS ICONV NLS PERL</build_options>
@@ -1812,7 +1812,7 @@
 		<build_pbi>
 			<port>devel/git</port>
 		</build_pbi>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>git-1.9.0_1-amd64.pbi</depends_on_package_pbi>
 	</package>
 	<package>
@@ -1820,7 +1820,7 @@
 		<website>http://www.tinc-vpn.org/</website>
 		<descr>tinc is a Virtual Private Network (VPN) daemon that uses tunnelling and encryption to create a secure private mesh network between hosts on the Internet.</descr>
 		<category>Network Management</category>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>tinc-1.0.23-amd64.pbi</depends_on_package_pbi>
 		<build_pbi>
 			<port>security/tinc</port>
@@ -1830,7 +1830,7 @@
 		<status>ALPHA</status>
 		<pkginfolink>https://doc.pfsense.org/index.php/tinc_package</pkginfolink>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/tinc/tinc.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/tinc/tinc.xml</config_file>
 		<configurationfile>tinc.xml</configurationfile>
 		<logging>
 			<facilityname>tinc</facilityname>
@@ -1846,7 +1846,7 @@
 		<version>3.5.4.1</version>
 		<status>ALPHA</status>
 		<required_version>2.1</required_version>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>syslog-ng-3.5.4.1-amd64.pbi</depends_on_package_pbi>
 		<build_pbi>
 			<ports_before>sysutils/logrotate</ports_before>
@@ -1854,14 +1854,14 @@
 		</build_pbi>
 		<build_options></build_options>
 		<maintainer>laleger@gmail.com</maintainer>
-		<config_file>https://packages.pfsense.org/packages/config/syslog-ng/syslog-ng.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/syslog-ng/syslog-ng.xml</config_file>
 		<configurationfile>syslog-ng.xml</configurationfile>
 	</package>
 	<package>
 		<name>Zabbix-2 Agent</name>
 		<descr>Monitoring agent.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/zabbix2/zabbix2-agent.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/zabbix2/zabbix2-agent.xml</config_file>
 		<version>zabbix2-agent-2.2.2 pkg v0.8_2</version>
 		<status>BETA</status>
 		<required_version>2.0</required_version>
@@ -1872,7 +1872,7 @@
 			<custom_name>zabbix22-agent</custom_name>
 			<port>net-mgmt/zabbix22-agent</port>
 		</build_pbi>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>zabbix22-agent-2.2.2.tbz</depends_on_package>
 		<depends_on_package_pbi>zabbix22-agent-2.2.2-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1880,7 +1880,7 @@
 		<name>Zabbix-2 Proxy</name>
 		<descr>Monitoring agent proxy.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/zabbix2/zabbix2-proxy.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/zabbix2/zabbix2-proxy.xml</config_file>
 		<version>zabbix2-proxy-2.2.2 pkg v0.8_2</version>
 		<status>BETA</status>
 		<required_version>2.0</required_version>
@@ -1892,7 +1892,7 @@
 			<port>net-mgmt/zabbix22-proxy</port>
 		</build_pbi>
 		<build_options>OPTIONS_SET+= SQLITE IPV6;OPTIONS_UNSET+= MYSQL JABBER GSSAPI</build_options>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>zabbix22-proxy-2.2.2.tbz</depends_on_package>
 		<depends_on_package_pbi>zabbix22-proxy-2.2.2-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1905,14 +1905,14 @@
 		<version>1.8.12_5</version>
 		<status>Beta</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/ipmitool/ipmitool.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/ipmitool/ipmitool.xml</config_file>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<configurationfile>ipmitool.xml</configurationfile>
 		<build_pbi>
 			<port>sysutils/ipmitool</port>
 		</build_pbi>
 		<build_options>ipmitool_SET=FREEIPMI;freeipmi_UNSET_FORCE=DOCS DEBUG IOPERM</build_options>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>ipmitool-1.8.12_5-amd64.pbi</depends_on_package_pbi>
 	</package>
 	<package>
@@ -1923,14 +1923,14 @@
 		<version>0.2</version>
 		<status>Beta</status>
 		<required_version>2.0.2</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/sudo/sudo.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/sudo/sudo.xml</config_file>
 		<maintainer>jimp@pfsense.org</maintainer>
 		<configurationfile>sudo.xml</configurationfile>
 		<build_pbi>
 			<port>security/sudo</port>
 		</build_pbi>
 		<build_port_path>/usr/ports/security/sudo</build_port_path>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>sudo-1.8.6.p8.tbz</depends_on_package>
 		<depends_on_package_pbi>sudo-1.8.6p8-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1941,7 +1941,7 @@
 		<version>1.5</version>
 		<category>Services</category>
 		<status>BETA</status>
-		<config_file>https://packages.pfsense.org/packages/config/servicewatchdog/servicewatchdog.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/servicewatchdog/servicewatchdog.xml</config_file>
 		<pkginfolink></pkginfolink>
 		<required_version>2.1</required_version>
 		<configurationfile>servicewatchdog.xml</configurationfile>
@@ -1951,8 +1951,8 @@
 		<website>http://code.google.com/p/softflowd/</website>
 		<descr>Softflowd is flow-based network traffic analyser capable of Cisco NetFlow data export. Softflowd semi-statefully tracks traffic flows recorded by listening on a network interface or by reading a packet capture file. These flows may be reported via NetFlow to a collecting host or summarised within softflowd itself. Softflowd supports Netflow versions 1, 5 and 9 and is fully IPv6-capable - it can track IPv6 flows and send export datagrams via IPv6. It also supports export to multicast groups, allowing for redundant flow collectors.</descr>
 		<category>Network Management</category>
-		<config_file>https://packages.pfsense.org/packages/config/softflowd/softflowd.xml</config_file>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<config_file>http://packages.nanosistemi.com/packages/config/softflowd/softflowd.xml</config_file>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>softflowd-0.9.8_2-amd64.pbi</depends_on_package_pbi>
 		<version>0.9.8</version>
 		<status>Beta</status>
@@ -1967,7 +1967,7 @@
 		<name>Apcupsd</name>
 		<descr>Set of programs for controlling APC UPS.</descr>
 		<category>Services</category>
-		<config_file>https://packages.pfsense.org/packages/config/apcupsd/apcupsd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/apcupsd/apcupsd.xml</config_file>
 		<version>apcupsd-3.14.10_1 pkg v0.2</version>
 		<status>BETA</status>
 		<required_version>2.0</required_version>
@@ -1979,7 +1979,7 @@
 			<port>sysutils/apcupsd</port>
 		</build_pbi>
 		<build_options>apcupsd_SET=APCSMART_DRV APCDUMB_DRV PCNET_DRV USB TCP_WRAPPERS SNMP_DRV;apcupsd_UNSET_FORCE=CLIENT_ONLY CGI SNMP_DRV_OLD TEST_DRV GAPCMON DOCS</build_options>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package>apcupsd-3.14.10_1.tbz</depends_on_package>
 		<depends_on_package_pbi>apcupsd-3.14.10_1-amd64.pbi</depends_on_package_pbi>
 	</package>
@@ -1990,9 +1990,9 @@
 		<category>Network Management</category>
 		<version>1.0.4</version>
 		<status>BETA</status>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>ladvd-1.0.4-amd64.pbi</depends_on_package_pbi>
-		<config_file>https://packages.pfsense.org/packages/config/ladvd/ladvd.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/ladvd/ladvd.xml</config_file>
 		<build_port_path>/usr/ports/net/ladvd</build_port_path>
 		<pkginfolink></pkginfolink>
 		<required_version>2.1</required_version>
@@ -2006,7 +2006,7 @@
 		<version>1.4.6 pkg v0.3</version>
 		<status>BETA</status>
 		<required_version>2.1</required_version>
-		<config_file>https://packages.pfsense.org/packages/config/suricata/suricata.xml</config_file>
+		<config_file>http://packages.nanosistemi.com/packages/config/suricata/suricata.xml</config_file>
 		<configurationfile>suricata.xml</configurationfile>
 		<build_pbi>
 			<port>security/suricata</port>
@@ -2014,7 +2014,7 @@
 		</build_pbi>
 		<build_options>barnyard2_UNSET=ODBC PGSQL PRELUDE;barnyard2_SET=GRE IPV6 MPLS MYSQL PORT_PCAP BRO;suricata_SET=IPFW PORTS_PCAP TESTS;suricata_UNSET=PRELUDE</build_options>
 		<build_port_path>/usr/ports/security/suricata</build_port_path>
-		<depends_on_package_base_url>https://files.pfsense.org/packages/amd64/8/All/</depends_on_package_base_url>
+		<depends_on_package_base_url>http://pfsense.nanosistemi.com/packages/amd64/8/All/</depends_on_package_base_url>
 		<depends_on_package_pbi>suricata-1.4.6-amd64.pbi</depends_on_package_pbi>
 	</package>
 </packages>
