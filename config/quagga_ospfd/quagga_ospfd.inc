@@ -1,7 +1,7 @@
 <?php
 /*
 	quagga_ospfd.inc
-	Copyright (C) 2010 Ermal Luçi
+	Copyright (C) 2010 Ermal Luï¿½i
 	Copyright (C) 2012 Jim Pingle
 	part of pfSense
 	All rights reserved.
@@ -73,6 +73,8 @@ function quagga_ospfd_install_conf() {
 	// Since we need to embed this in a string, copy to a var. Can't embed constnats.
 	$quagga_config_base = PKG_QUAGGA_CONFIG_BASE;
 
+	$noaccept = "";
+
 	if ($config['installedpackages']['quaggaospfd']['rawconfig'] && $config['installedpackages']['quaggaospfd']['rawconfig']['item']) {
 		// if there is a raw config specifyed in tthe config.xml use that instead of the assisted config
 		$conffile = implode("\n",$config['installedpackages']['quaggaospfd']['rawconfig']['item']);
@@ -110,9 +112,9 @@ function quagga_ospfd_install_conf() {
 				}
 				if ($conf['md5password'] && !empty($conf['password'])) {
 					$conffile .= "  ip ospf authentication message-digest\n";
-					$conffile .= "  ip ospf message-digest-key 1 md5 \"" . substr($conf['password'], 0, 15) . "\"\n";
+					$conffile .= "  ip ospf message-digest-key 1 md5 " . substr($conf['password'], 0, 15) . "\n";
 				} else if (!empty($conf['password'])) {
-					$conffile .= "  ip ospf authentication-key \"" . substr($conf['password'], 0, 8) . "\"\n";
+					$conffile .= "  ip ospf authentication-key " . substr($conf['password'], 0, 8) . "\n";
 				}
 				if (!empty($conf['routerpriorityelections'])) {
 					$conffile .= "  ip ospf priority {$conf['routerpriorityelections']}\n";
@@ -132,6 +134,9 @@ function quagga_ospfd_install_conf() {
 				if ($interface_subnet == 32)
 					$interface_subnet = 30;
 				$subnet = gen_subnet($interface_ip, $interface_subnet);
+				if (!empty($conf['acceptfilter'])) {
+					$noaccept .= "ip prefix-list ACCEPTFILTER deny {$subnet}/{$interface_subnet}\n";
+				}
 				if (!empty($conf['interfacearea'])) {
 					$interface_networks[] = array( "subnet" => "{$subnet}/{$interface_subnet}", "area" => $conf['interfacearea']);
 				}
@@ -151,6 +156,9 @@ function quagga_ospfd_install_conf() {
 			foreach ($ospfd_conf['row'] as $redistr) {
 				if (empty($redistr['routevalue']))
 					continue;
+				if (isset($redistr['acceptfilter'])) {
+					$noaccept .= "ip prefix-list ACCEPTFILTER deny {$redistr['routevalue']}\n";
+				}
 				if (isset($redistr['redistribute'])) {
 					$noredist .= "  access-list dnr-list deny {$redistr['routevalue']}\n";
 				} else {
@@ -239,9 +247,30 @@ function quagga_ospfd_install_conf() {
 		$zebraconffile .= "password {$ospfd_conf['password']}\n";
 	if ($ospfd_conf['logging'])
 		$zebraconffile .= "log syslog\n";
+	if (!empty($noaccept)) {
+		$zebraconffile .= $noaccept;
+		$zebraconffile .= "ip prefix-list ACCEPTFILTER permit any\n";
+		$zebraconffile .= "route-map ACCEPTFILTER permit 10\n";
+		$zebraconffile .= "match ip address prefix-list ACCEPTFILTER\n";
+		$zebraconffile .= "ip protocol ospf route-map ACCEPTFILTER\n";
+	}
 	$fd = fopen("{$quagga_config_base}/zebra.conf", "w");
 	fwrite($fd, $zebraconffile);
 	fclose($fd);
+
+	$carp_ip_status_check = "";
+	if (is_ipaddr($ospfd_conf['carpstatusip'])) {
+		$carpcheckinterface = trim(find_carp_interface($ospfd_conf['carpstatusip']));
+		$carp_ip_status_check = <<<EOF
+
+CARP_STATUS=`/sbin/ifconfig {$carpcheckinterface} | /usr/bin/grep carp: | /usr/bin/awk '{print \$2;}'`
+if [ \${CARP_STATUS} != "MASTER" ]; then
+	exit;
+fi
+
+EOF;
+	}
+
 
 	// Create rc.d file
 	$rc_file_stop = <<<EOF
@@ -274,6 +303,7 @@ fi
 killall -9 zebra 2>/dev/null
 killall -9 ospfd 2>/dev/null
 sleep 1
+{$carp_ip_status_check}
 /usr/local/sbin/zebra -d -f {$quagga_config_base}/zebra.conf
 /usr/local/sbin/ospfd -d -f {$quagga_config_base}/ospfd.conf
 EOF;
@@ -290,7 +320,24 @@ EOF;
 	exec("chmod u+rw,go-rw {$quagga_config_base}/zebra.conf");
 
 	// Kick off newly created rc.d script
-	exec("/usr/local/etc/rc.d/quagga.sh restart");
+	if (is_ipaddr($ospfd_conf['carpstatusip'])) {
+		$status = quagga_get_carp_status_by_ip($ospfd_conf['carpstatusip']);
+		switch (strtoupper($status)) {
+			// Stop the service if the VIP is in BACKUP or INIT state.
+			case "BACKUP":
+			case "INIT":
+				exec("/usr/local/etc/rc.d/quagga.sh stop");
+				break;
+			// Start the service if the VIP is MASTER state.
+			case "MASTER":
+			// Assume it's up if the status can't be determined.
+			default:
+				exec("/usr/local/etc/rc.d/quagga.sh restart");
+				break;
+		}
+	} else {
+		exec("/usr/local/etc/rc.d/quagga.sh restart");
+	}
 
 	// Back to RO mount for NanoBSD and friends
 	conf_mount_ro();
@@ -343,6 +390,20 @@ function quagga_ospfd_put_raw_config($conffile) {
 		$config['installedpackages']['quaggaospfd']['rawconfig']['item'] = explode("\n",$_POST['quagga_ospfd_raw']);
 		$config['installedpackages']['quaggaospfd']['rawconfig'] = $conffile;
 	}
+}
+
+function quagga_get_carp_status_by_ip($ipaddr) {
+	$iface = trim(find_carp_interface($ipaddr));
+	if ($iface) {
+		$status = get_carp_interface_status($iface);
+		// If there is no status for that interface, return null.
+		if (!$status)
+			$status = null;
+	} else {
+		// If there is no VIP by that IP, return null.
+		$status = null;
+	}
+	return $status;
 }
 
 ?>

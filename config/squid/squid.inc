@@ -39,11 +39,12 @@ require_once('service-utils.inc');
 if(!function_exists("filter_configure")) 
 	require_once("filter.inc");
 
-if (substr(trim(file_get_contents("/etc/version")),0,3) == "2.0") {
-	define('SQUID_LOCALBASE','/usr/local');
-} else {
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version > 2.0)
 	define('SQUID_LOCALBASE', '/usr/pbi/squid-' . php_uname("m"));
-}
+else
+  define('SQUID_LOCALBASE','/usr/local');
+
 
 define('SQUID_CONFBASE',SQUID_LOCALBASE . '/etc/squid');
 define('SQUID_BASE', '/var/squid/');
@@ -229,7 +230,7 @@ function squid_install_command() {
 	/* kill any running proxy alarm scripts */
 	update_status("Checking for running processes... One moment please...");
 	log_error("Stopping any running proxy monitors");
-	mwexec("ps awux | grep \"proxy_monitor\" | grep -v \"grep\" | grep -v \"php\" | awk '{ print $2 }' | xargs kill");
+	mwexec("/usr/local/etc/rc.d/sqp_monitor.sh stop");
 	sleep(1);
 
 	if (!file_exists(SQUID_CONFBASE . '/mime.conf') && file_exists(SQUID_CONFBASE . '/mime.conf.default'))
@@ -250,7 +251,7 @@ function squid_install_command() {
 
 	/* restart proxy alarm scripts */
 	log_error("Starting a proxy monitor script");
-	mwexec_bg("/usr/local/etc/rc.d/proxy_monitor.sh");
+	mwexec_bg("/usr/local/etc/rc.d/sqp_monitor.sh start");
 
 	update_status("Reconfiguring filter... One moment please...");
 	filter_configure();
@@ -268,8 +269,8 @@ function squid_deinstall_command() {
 	mwexec('rm -rf $cachedir/swap.state');
 	mwexec('rm -rf $logdir');
 	update_status("Finishing package cleanup.");
-	mwexec('rm -f /usr/local/etc/rc.d/proxy_monitor.sh');
-	mwexec("ps awux | grep \"proxy_monitor\" | grep -v \"grep\" | grep -v \"php\" | awk '{ print $2 }' | xargs kill");
+	mwexec("/usr/local/etc/rc.d/sqp_monitor.sh stop");
+	mwexec('rm -f /usr/local/etc/rc.d/sqp_monitor.sh');
 	mwexec("ps awux | grep \"squid\" | grep -v \"grep\" | awk '{ print $2 }' | xargs kill");
 	mwexec("ps awux | grep \"dnsserver\" | grep -v \"grep\" | awk '{ print $2 }' | xargs kill");
 	mwexec("ps awux | grep \"unlinkd\" | grep -v \"grep\" | awk '{ print $2 }' | xargs kill");
@@ -294,7 +295,7 @@ function squid_before_form_general($pkg) {
 	}
 	$field = &$pkg['fields']['field'][$i];
 
-	for ($i = 0; $i < count($values) - 1; $i++)
+	for ($i = 0; $i < count($values); $i++)
 		$field['options']['option'][] = array('name' => $names[$i], 'value' => $values[$i]);
 }
 
@@ -446,12 +447,13 @@ function squid_validate_nac($post, $input_errors) {
 			$input_errors[] = "The time range '$time' is not a valid time range";
 	}
 
-  if(!empty($post['ext_cachemanager'])) {
-	 $extmgr = explode(";", ($post['ext_cachemanager']));
-	 foreach ($extmgr as $mgr) {
-    if (!is_ipaddr($mgr))
-      $input_errors[] = 'You must enter a valid IP address in the \'External Cache Manager\' field';
-	 }}
+	if(!empty($post['ext_cachemanager'])) {
+		$extmgr = explode(";", ($post['ext_cachemanager']));
+		foreach ($extmgr as $mgr) {
+			if (!empty($mgr) && !is_ipaddr($mgr))
+			$input_errors[] = 'You must enter a valid IP address in the \'External Cache Manager\' field';
+		}
+	}
 }
 
 function squid_validate_traffic($post, $input_errors) {
@@ -857,11 +859,13 @@ http_access allow manager localhost
 EOD;
 
 	if(!empty($settings['ext_cachemanager'])) {
-	  $extmgr = explode(";", ($settings['ext_cachemanager']));
+		$extmgr = array_unique(explode(";", rtrim($settings['ext_cachemanager'], ';')));
     $count = 1;
     $conf .= "\n# Allow external cache managers\n";
 //    $conf .= "acl ext_manager src ".$settings['ext_cachemanager']."\n";
 	 foreach ($extmgr as $mgr) {
+		if (empty($mgr))
+			continue;
     $conf .= "acl ext_manager_".$count." src ";
     $conf .= $mgr." ";
     $conf .= "\n";
@@ -1036,9 +1040,12 @@ function squid_resync_auth() {
 			$conf .= "http_access allow $acl\n";
 	}
 	else {
-		$noauth = implode(' ', explode("\n", base64_decode($settings['no_auth_hosts'])));
+		$noauth = base64_decode($settings['no_auth_hosts']);
 		if (!empty($noauth)) {
-			$conf .= "acl noauth src $noauth\n";
+			foreach (explode("\n", $noauth) as $host) {
+				$host = trim($host);	
+				$conf .= "acl noauth src $host\n";
+			}
 			$valid_acls[] = 'noauth';
 		}
 
@@ -1469,5 +1476,10 @@ if [ -z "`ps auxw | grep "[s]quid -D"|awk '{print $2}'`" ];then
 EOD;
 	conf_mount_rw();
 	write_rcfile($rc);
+	write_rcfile(array(
+		"file" => "sqp_monitor.sh",
+		"start" => "/usr/local/pkg/sqpmon.sh &",
+		"stop" => "ps awux | grep \"sqpmon\" | grep -v \"grep\" | grep -v \"php\" | awk '{ print $2 }' | xargs kill"));
+	conf_mount_ro();
 }
 ?>

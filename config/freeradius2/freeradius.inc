@@ -4,7 +4,8 @@
 /*
 	freeradius.inc
 	part of pfSense (http://www.pfSense.com)
-	Copyright (C) 2011 - 2012 Alexander Wilke <nachtfalkeaw@web.de>
+	Copyright (C) 2013 Alexander Wilke <nachtfalkeaw@web.de>
+	Copyright (C) 2013 Marcello Coutinho
 	All rights reserved.
 
 	Based on m0n0wall (http://m0n0.ch/wall)
@@ -47,16 +48,24 @@ require_once("services.inc");
 
 // Check pfSense version
 $pfs_version = substr(trim(file_get_contents("/etc/version")),0,3);
-switch ($pfs_version) {
-	case "1.2":
-	case "2.0":
-		define('FREERADIUS_BASE', '/usr/local');
-		break;
-	default:
-		define('FREERADIUS_BASE', '/usr/pbi/freeradius-' . php_uname("m"));
+if ($pfs_version > 2.0){
+	define('FREERADIUS_BASE', '/usr/pbi/freeradius-' . php_uname("m"));
 }
-// End: Check pfSense version
+else{
+	define('FREERADIUS_BASE', '/usr/local');		
+}
 
+// Check freeradius lib version
+	$frlib="";
+	$libfiles = scandir(FREERADIUS_BASE . "/lib/");
+	foreach ($libfiles as $libfile){
+		if (preg_match("/freeradius-/",$libfile))
+			$frlib=FREERADIUS_BASE . "/lib/{$libfile}";
+	}
+	if ($frlib == ""){
+		log_error("freeRADIUS - No freeradius lib found on ".FREERADIUS_BASE."/lib");
+	}
+	
 function freeradius_deinstall_command() {
 	if (substr(trim(file_get_contents("/etc/version")),0,3) == "2.0") {
 		exec("cd /var/db/pkg && pkg_delete `ls | grep freeradius`");
@@ -68,7 +77,7 @@ function freeradius_deinstall_command() {
 function freeradius_install_command() {
 	global $config;
 	conf_mount_rw();
-
+	
 	// put the constant to a variable
 	$varFREERADIUS_BASE = FREERADIUS_BASE;
 
@@ -79,7 +88,7 @@ function freeradius_install_command() {
 	exec("mkdir " . FREERADIUS_BASE . "/etc/raddb/scripts");
 	if (!file_exists("/var/log/radutmp")) { exec("touch /var/log/radutmp");	}
 	if (!file_exists("/var/log/radwtmp")) {	exec("touch /var/log/radwtmp");	}
-	exec("chown -R root:wheel " . FREERADIUS_BASE . "/etc/raddb && chown -R root:wheel " . FREERADIUS_BASE . "/lib/freeradius-2.1.12 && chown -R root:wheel /var/log/radacct");
+	exec("chown -R root:wheel " . FREERADIUS_BASE . "/etc/raddb && chown -R root:wheel {$frlib} && chown -R root:wheel /var/log/radacct");
 
 	// creating a backup file of the original policy.conf no matter if user checked this or not
 	if (!file_exists(FREERADIUS_BASE . "/etc/raddb/policy.conf.backup")) {
@@ -213,7 +222,7 @@ raddbdir = \${sysconfdir}/raddb
 radacctdir = \${logdir}/radacct
 confdir = \${raddbdir}
 run_dir = \${localstatedir}/run
-libdir = \${exec_prefix}/lib/freeradius-2.1.12
+libdir = {$frlib}
 pidfile = \${run_dir}/radiusd.pid
 db_dir = \${raddbdir}
 name = radiusd
@@ -390,6 +399,18 @@ if (is_array($arrusers) && !empty($arrusers)) {
 	$varusersusername = $users['varusersusername'];
 	$varuserspassword = $users['varuserspassword'];
 	
+
+	// Check password encryption
+	$varuserspasswordencryption = ($users['varuserspasswordencryption']?$users['varuserspasswordencryption']:'Cleartext-Password');
+		switch ($varuserspasswordencryption) {
+			case "MD5-Password":
+				$varuserspassword = md5($varuserspassword);
+				break;
+			default:
+				$varuserspassword = $users['varuserspassword'];
+		}
+	
+		
 	$varusersmotpinitsecret = $users['varusersmotpinitsecret'];
 	$varusersmotppin = $users['varusersmotppin'];
 	$varusersmotpoffset = ($users['varusersmotpoffset']?$users['varusersmotpoffset']:'0');
@@ -419,6 +440,13 @@ if (is_array($arrusers) && !empty($arrusers)) {
 	$varusersmaxbandwidthup = $varusersmaxbandwidthup * 1024;
 	$varusersmaxbandwidthdown = ($users['varusersmaxbandwidthdown']?$users['varusersmaxbandwidthdown']:'');
 	$varusersmaxbandwidthdown = $varusersmaxbandwidthdown * 1024;
+	
+	// Accounting-Interim-Interval - Must not be smaller than 60 and should be bigger than 600s
+	if (($users['varusersacctinteriminterval'] >= '0') && ($users['varusersacctinteriminterval'] < '60')) {
+		$varusersacctinteriminterval = 60;
+	} else {
+		$varusersacctinteriminterval = $users['varusersacctinteriminterval'];
+	}
 	
 	// Clear variables for next user foreach additional options TOP
 	$varuserstopadditionaloptions = '';
@@ -467,7 +495,7 @@ if (is_array($arrusers) && !empty($arrusers)) {
 			}
 			else {
 				// Add the user attributes to each user.
-				$varuserscheckitem = '"' . $varusersusername . '"' . " Cleartext-Password := " . '"' . $varuserspassword .'"';
+				$varuserscheckitem = '"' . $varusersusername . '"' . " $varuserspasswordencryption := " . '"' . $varuserspassword .'"';
 			}
 		} // end of check if otp is enabled
 	
@@ -529,6 +557,10 @@ if (is_array($arrusers) && !empty($arrusers)) {
 	if ($varusersmaxbandwidthdown != '') {
 		if ($varusersreplyitem != '') { $varusersreplyitem .=","; }
 		$varusersreplyitem .= "\n\tWISPr-Bandwidth-Max-Down := $varusersmaxbandwidthdown";
+	}
+	if ($varusersacctinteriminterval != '') {
+		if ($varusersreplyitem != '') { $varusersreplyitem .=","; }
+		$varusersreplyitem .= "\n\tAcct-Interim-Interval := $varusersacctinteriminterval";
 	}
 	if ($varuserswisprredirectionurl != '') {
 		if ($varusersreplyitem != '') { $varusersreplyitem .=","; }
@@ -616,6 +648,15 @@ if (is_array($arrmacs) && !empty($arrmacs)) {
 	$varmacsmaxbandwidthup = $varmacsmaxbandwidthup * 1024;
 	$varmacsmaxbandwidthdown = ($macs['varmacsmaxbandwidthdown']?$macs['varmacsmaxbandwidthdown']:'');
 	$varmacsmaxbandwidthdown = $varmacsmaxbandwidthdown * 1024;
+	
+		
+	// Accounting-Interim-Interval
+	if (($users['varmacsacctinteriminterval'] >= '0') && ($users['varmacsacctinteriminterval'] < '60')) {
+		$varmacsacctinteriminterval = 60;
+	} else {
+		$varmacsacctinteriminterval = $users['varmacsacctinteriminterval'];
+	}
+	
 	
 	// Clear variables for next mac foreach additional options TOP
 	$varmacstopadditionaloptions = '';
@@ -710,6 +751,10 @@ if (is_array($arrmacs) && !empty($arrmacs)) {
 	if ($varmacsmaxbandwidthdown != '') {
 		if ($varmacsreplyitem != '') { $varmacsreplyitem .=","; }
 		$varmacsreplyitem .= "\n\tWISPr-Bandwidth-Max-Down := $varmacsmaxbandwidthdown";
+	}
+	if ($varmacsacctinteriminterval != '') {
+		if ($varmacsreplyitem != '') { $varmacsreplyitem .=","; }
+		$varmacsreplyitem .= "\n\tAcct-Interim-Interval := $varmacsacctinteriminterval";
 	}
 	if ($varmacswisprredirectionurl != '') {
 		if ($varmacsreplyitem != '') { $varmacsreplyitem .=","; }
@@ -912,12 +957,18 @@ if ($eapconf['vareapconfchoosecertmanager'] == 'on') {
 
 
 			if(base64_decode($ca_cert['crt'])) {
+				$crl_cert = lookup_crl($eapconf["ssl_ca_crl"]);
+				if ($crl_cert != false){
+					$crl=base64_decode($crl_cert['text']);
+					$check_crl="check_crl = yes";
+				}
+				else{
+					$check_crl="check_crl = no";
+				}
 				file_put_contents(FREERADIUS_BASE . "/etc/raddb/certs/ca_cert.pem", 
-					base64_decode($ca_cert['crt']));
+					base64_decode($ca_cert['crt']). $crl);
 				$conf['ssl_ca_cert'] = FREERADIUS_BASE . "/etc/raddb/certs/ca_cert.pem";
 			}
-
-
 			$svr_cert = lookup_cert($eapconf["ssl_server_cert"]);
 			if ($svr_cert != false) {
 				if(base64_decode($svr_cert['prv'])) {
@@ -934,7 +985,7 @@ if ($eapconf['vareapconfchoosecertmanager'] == 'on') {
 				$conf['ssl_server_cert'] = FREERADIUS_BASE . "/etc/raddb/certs/server_cert.pem";
 			}
 			
-			
+			/* Not needed anymore because pfsense can do this by default
 			if ($eapconf['vareapconfenableclientp12'] == 'on') {
 				$svr_cert = lookup_cert($eapconf["ssl_client_cert"]);
 				if ($svr_cert != false) {
@@ -954,7 +1005,7 @@ if ($eapconf['vareapconfchoosecertmanager'] == 'on') {
 			
 			exec("openssl pkcs12 -export -in " . FREERADIUS_BASE . "/etc/raddb/certs/client_cert.pem -inkey " . FREERADIUS_BASE . "/etc/raddb/certs/client_key.pem -out " . FREERADIUS_BASE . "/etc/raddb/certs/client_cert.p12 -passout pass\:");	
 			}
-			
+			*/
 			$conf['ssl_cert_dir'] = FREERADIUS_BASE . '/etc/raddb/certs';
 		}
 
@@ -1019,7 +1070,7 @@ else {
 			random_file = \${certdir}/random
 			fragment_size = $vareapconffragmentsize
 			include_length = $vareapconfincludelength
-		#	check_crl = yes
+			{$check_crl}
 			CA_path = \${cadir}
 			$vareapconfcheckcertissuer
 			$vareapconfcheckcertcn
@@ -1081,6 +1132,18 @@ function freeradius_get_ca_certs() {
 		$ca_arr[] = array('refid' => $ca['refid'], 'descr' => $ca['descr']);
 	}
 	return $ca_arr;
+}
+
+// Gets started from freeradiuseapconf.xml
+function freeradius_get_ca_crl() {
+	global $config;
+	$crl_arr = array();
+	$crl_arr[] = array('refid' => 'none', 'descr' => 'none');
+
+	foreach ($config['crl'] as $crl) {
+		$crl_arr[] = array('refid' => $crl['refid'], 'descr' => $crl['descr']);
+	}
+	return $crl_arr;
 }
 
 // Gets started from freeradiuseapconf.xml
@@ -2458,32 +2521,75 @@ conf_mount_ro();
 /* Uses XMLRPC to synchronize the changes to a remote node */
 function freeradius_sync_on_changes() {
 	global $config, $g;
-	$varsyncenablexmlrpc = $config['installedpackages']['freeradiussync']['config'][0]['varsyncenablexmlrpc'];	
-	
-	// if checkbox is NOT checked do nothing
-	if(!$varsyncenablexmlrpc) {
+	if (is_array($config['installedpackages']['freeradiussync'])){
+		$synconchanges = $config['installedpackages']['freeradiussync']['config'][0]['varsyncenablexmlrpc'];
+		$varsynctimeout = $config['installedpackages']['freeradiussync']['config'][0]['varsynctimeout'];
+		}
+	else
+	{
 		return;
 	}
-	
-	log_error("FreeRADIUS: Starting XMLRPC process (freeradius_do_xmlrpc_sync).");	
-	
-	// if checkbox is checked get IP and password of the destination hosts
-	foreach ($config['installedpackages']['freeradiussync']['config'] as $rs ){
-		foreach($rs['row'] as $sh){
-			$varsyncprotocol 	= $sh['varsyncprotocol'];
-			$sync_to_ip 		= $sh['varsyncipaddress'];
-			$password   		= $sh['varsyncpassword'];
-			$varsyncport 		= $sh['varsyncport'];
-			if($password && $sync_to_ip && $varsyncport && $varsyncprotocol)
-				freeradius_do_xmlrpc_sync($sync_to_ip, $password, $varsyncport, $varsyncprotocol);
+
+	// if checkbox is NOT checked do nothing
+	switch ($synconchanges){
+		case "manual":
+			if (is_array($config['installedpackages']['freeradiussync']['config'][0]['row'])){
+				$rs=$config['installedpackages']['freeradiussync']['config'][0]['row'];
+				}
+			else{
+				log_error("[FreeRADIUS]: xmlrpc sync is enabled but there is no hosts to push on FreeRADIUS config.");
+				return;
+				}
+			break;
+		case "auto":
+				if (is_array($config['installedpackages']['carpsettings']) && is_array($config['installedpackages']['carpsettings']['config'])){
+					$system_carp=$config['installedpackages']['carpsettings']['config'][0];
+					$rs[0]['varsyncdestinenable']="on";
+					$rs[0]['varsyncprotocol']=($config['system']['webgui']['protocol']!=""?$config['system']['webgui']['protocol']:"https");
+					$rs[0]['varsyncipaddress']=$system_carp['synchronizetoip'];
+					$rs[0]['varsyncpassword']=$system_carp['password'];
+					$rs[0]['varsyncport']=($config['system']['webgui']['port']!=""?$config['system']['webgui']['port']:"443");
+					if (! is_ipaddr($system_carp['synchronizetoip'])){
+						log_error("[FreeRADIUS]: xmlrpc sync is enabled but there is no system backup hosts to push FreeRADIUS config.");
+						return;
+						}
+				}
+				else{
+					log_error("[FreeRADIUS]: xmlrpc sync is enabled but there is no system backup hosts to push FreeRADIUS config.");
+					return;
+				}
+			break;		
+		default:
+			return;
+		break;
 		}
-	}
-	log_error("FreeRADIUS: Finished XMLRPC process (freeradius_do_xmlrpc_sync).");
+		if (is_array($rs)){
+			log_error("[FreeRADIUS]: xmlrpc sync is starting with timeout {$varsynctimeout} seconds.");
+			foreach($rs as $sh){
+				if($sh['varsyncdestinenable']){
+					$varsyncprotocol 	= $sh['varsyncprotocol'];
+					$sync_to_ip 		= $sh['varsyncipaddress'];
+					$password   		= $sh['varsyncpassword'];
+					$varsyncport 		= $sh['varsyncport'];
+					if($password && $sync_to_ip)
+						freeradius_do_xmlrpc_sync($sync_to_ip, $password, $varsyncport, $varsyncprotocol,$varsynctimeout);
+					else
+						log_error("[FreeRADIUS]: XMLRPC Sync with {$sh['varsyncipaddress']} has incomplete credentials. No XMLRPC Sync done!");
+				}
+				else {
+				log_error("[FreeRADIUS]: XMLRPC Sync with {$sh['varsyncipaddress']} is disabled");
+				}
+			}
+			log_error("[FreeRADIUS]: xmlrpc sync is ending.");
+			}
 }
 
 /* Do the actual XMLRPC sync */
-function freeradius_do_xmlrpc_sync($sync_to_ip, $password, $varsyncport, $varsyncprotocol) {
+function freeradius_do_xmlrpc_sync($sync_to_ip, $password, $varsyncport, $varsyncprotocol,$varsynctimeout) {
 	global $config, $g;
+
+	if($varsynctimeout == '' || $varsynctimeout == 0)
+		$varsynctimeout = 150;
 
 	if(!$password)
 		return;
@@ -2517,33 +2623,33 @@ function freeradius_do_xmlrpc_sync($sync_to_ip, $password, $varsyncport, $varsyn
 
 	/* set a few variables needed for sync code borrowed from filter.inc */
 	$url = $synchronizetoip;
-	log_error("FreeRADIUS: Beginning FreeRADIUS XMLRPC sync with {$url}:{$port}.");
+	log_error("[FreeRADIUS]: Beginning FreeRADIUS XMLRPC sync with {$url}:{$port}.");
 	$method = 'pfsense.merge_installedpackages_section_xmlrpc';
 	$msg = new XML_RPC_Message($method, $params);
 	$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
 	$cli->setCredentials('admin', $password);
 		if($g['debug'])
 			$cli->setDebug(1);
-		/* send our XMLRPC message and timeout after 150 seconds */
-		$resp = $cli->send($msg, "150");
+		/* send our XMLRPC message and timeout after $varsynctimeout seconds */
+		$resp = $cli->send($msg, $varsynctimeout);
 		if(!$resp) {
 			$error = "A communications error occurred while FreeRADIUS was attempting XMLRPC sync with {$url}:{$port}.";
-			log_error("FreeRADIUS: $error");
-			file_notice("sync_settings", $error, "freeradius Settings Sync", "");
+			log_error("[FreeRADIUS]: $error");
+			file_notice("sync_settings", $error, "FreeRADIUS Settings Sync", "");
 		} elseif($resp->faultCode()) {
 			$cli->setDebug(1);
-			$resp = $cli->send($msg, "150");
+			$resp = $cli->send($msg, $varsynctimeout);
 			$error = "An error code was received while FreeRADIUS XMLRPC was attempting to sync with {$url}:{$port} - Code " . $resp->faultCode() . ": " . $resp->faultString();
-			log_error("FreeRADIUS: $error");
-			file_notice("sync_settings", $error, "freeradius Settings Sync", "");
+			log_error("[FreeRADIUS]: $error");
+			file_notice("sync_settings", $error, "FreeRADIUS Settings Sync", "");
 		} else {
-			log_error("FreeRADIUS: XMLRPC has synced data successfully with {$url}:{$port}.");
+			log_error("[FreeRADIUS]: XMLRPC has synced data successfully with {$url}:{$port}.");
 		}
 	
-	/* tell freeradius to reload our settings on the destionation sync host. */
+	/* tell FreeRADIUS to reload our settings on the destionation sync host. */
 	$method = 'pfsense.exec_php';
 	$execcmd  = "require_once('/usr/local/pkg/freeradius.inc');\n";
-	// pfblocker just needed one fuction to reload after XMLRPC. freeRADIUS needs more so we point to a fuction below which contains all fuctions
+	// pfblocker just needed one fuction to reload after XMLRPC. FreeRADIUS needs more so we point to a fuction below which contains all fuctions
 	$execcmd .= "freeradius_all_after_XMLRPC_resync();";
 	
 	/* assemble xmlrpc payload */
@@ -2552,28 +2658,26 @@ function freeradius_do_xmlrpc_sync($sync_to_ip, $password, $varsyncport, $varsyn
 		XML_RPC_encode($execcmd)
 	);
 
-	log_error("FreeRADIUS XMLRPC is reloading data on {$url}:{$port}.");
+	log_error("[FreeRADIUS]: XMLRPC is reloading data on {$url}:{$port}.");
 	$msg = new XML_RPC_Message($method, $params);
 	$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
 	$cli->setCredentials('admin', $password);
-		$resp = $cli->send($msg, "150");
+		$resp = $cli->send($msg, $varsynctimeout);
 		if(!$resp) {
 			$error = "A communications error occurred while FreeRADIUS was attempting XMLRPC sync with {$url}:{$port} (exec_php).";
 			log_error($error);
-			file_notice("sync_settings", $error, "freeradius Settings Sync", "");
+			file_notice("sync_settings", $error, "FreeRADIUS Settings Sync", "");
 		} elseif($resp->faultCode()) {
 			$cli->setDebug(1);
-			$resp = $cli->send($msg, "150");
+			$resp = $cli->send($msg, $varsynctimeout);
 			$error = "An error code was received while FreeRADIUS XMLRPC was attempting to sync with {$url}:{$port} - Code " . $resp->faultCode() . ": " . $resp->faultString();
 			log_error($error);
-			file_notice("sync_settings", $error, "freeradius Settings Sync", "");
+			file_notice("sync_settings", $error, "FreeRADIUS Settings Sync", "");
 		} else {
-			log_error("FreeRADIUS: XMLRPC has reloaded data successfully on {$url}:{$port} (exec_php).");
+			log_error("[FreeRADIUS]: XMLRPC has reloaded data successfully on {$url}:{$port} (exec_php).");
 		}
 
 }
-
-// ##### The part above is based on the code of pfblocker #####
 
 // This function restarts all other needed functions after XMLRPC so that the content of .XML + .INC will be written in the files (clients.conf, users)
 // Adding more functions will increase the to sync
@@ -2867,6 +2971,7 @@ function freeradius_modulesldap_resync() {
 	
 	// Variables for General Configuration ldap1
 	$varmodulesldapserver = ($arrmodulesldap['varmodulesldapserver']?$arrmodulesldap['varmodulesldapserver']:'ldap.your.domain');
+	$varmodulesldapserverport = ($arrmodulesldap['varmodulesldapserverport']?$arrmodulesldap['varmodulesldapserverport']:'389');
 	$varmodulesldapidentity = ($arrmodulesldap['varmodulesldapidentity']?$arrmodulesldap['varmodulesldapidentity']:'cn=admin,o=My Org,c=UA');
 	$varmodulesldappassword = ($arrmodulesldap['varmodulesldappassword']?$arrmodulesldap['varmodulesldappassword']:'mypass');
 	$varmodulesldapbasedn = ($arrmodulesldap['varmodulesldapbasedn']?$arrmodulesldap['varmodulesldapbasedn']:'o=My Org,c=UA');
@@ -2879,6 +2984,7 @@ function freeradius_modulesldap_resync() {
 	
 	// Variables for General Configuration ldap2
 	$varmodulesldap2server = ($arrmodulesldap['varmodulesldap2server']?$arrmodulesldap['varmodulesldap2server']:'ldap.your.domain');
+	$varmodulesldap2serverport = ($arrmodulesldap['varmodulesldap2serverport']?$arrmodulesldap['varmodulesldap2serverport']:'389');
 	$varmodulesldap2identity = ($arrmodulesldap['varmodulesldap2identity']?$arrmodulesldap['varmodulesldap2identity']:'cn=admin,o=My Org,c=UA');
 	$varmodulesldap2password = ($arrmodulesldap['varmodulesldap2password']?$arrmodulesldap['varmodulesldap2password']:'mypass');
 	$varmodulesldap2basedn = ($arrmodulesldap['varmodulesldap2basedn']?$arrmodulesldap['varmodulesldap2basedn']:'o=My Org,c=UA');
@@ -3133,6 +3239,7 @@ ldap {
 	#  Note that this needs to match the name in the LDAP
 	#  server certificate, if you're using ldaps.
 	server = "$varmodulesldapserver"
+	port = "$varmodulesldapserverport"
 	identity = "$varmodulesldapidentity"
 	password = $varmodulesldappassword
 	basedn = "$varmodulesldapbasedn"
@@ -3186,7 +3293,7 @@ ldap {
 
 		#  Certificate Verification requirements.  Can be:
 		#    "never" (don't even bother trying)
-		#    "allow" (try, but don't fail if the cerificate
+		#    "allow" (try, but don't fail if the certificate
 		#		can't be verified)
 		#    "demand" (fail if the certificate doesn't verify.)
 		#
@@ -3292,6 +3399,7 @@ ldap ldap2{
 	#  Note that this needs to match the name in the LDAP
 	#  server certificate, if you're using ldaps.
 	server = "$varmodulesldap2server"
+	port = "$varmodulesldap2serverport"
 	identity = "$varmodulesldap2identity"
 	password = $varmodulesldap2password
 	basedn = "$varmodulesldap2basedn"
@@ -3345,7 +3453,7 @@ ldap ldap2{
 
 		#  Certificate Verification requirements.  Can be:
 		#    "never" (don't even bother trying)
-		#    "allow" (try, but don't fail if the cerificate
+		#    "allow" (try, but don't fail if the certificate
 		#		can't be verified)
 		#    "demand" (fail if the certificate doesn't verify.)
 		#
@@ -3899,7 +4007,7 @@ USERNAME=`echo -n "\$1" | sed 's/[^0-9a-zA-Z._-]/X/g' `
 PASSWD=`echo -n "\$2" | sed 's/[^0-9a-f]/0/g' `
 SECRET=`echo -n "\$3" | sed 's/[^0-9a-f]/0/g' `
 PIN=`echo -n "\$4" | sed 's/[^0-9]/0/g' `
-OFFSET=`echo -n "\$5" | sed 's/[^0-9]/0/g' `
+OFFSET=`echo -n "\$5" | sed 's/[^0-9-]/0/g' `
 EPOCHTIME=`date +%s` ; EPOCHTIME=`chop \$EPOCHTIME`
 
 # delete old logins

@@ -2,7 +2,7 @@
 /* $Id$ */
 /*
 	unbound_acls.php
-	part of pfSense (http://www.pfsense.com/)
+	part of pfSense (https://www.pfsense.org/)
 
 	Copyright (C) 2011 Warren Baker <warren@decoy.co.za>
 	All rights reserved.
@@ -95,7 +95,7 @@ if ($_POST) {
 				$input_errors[] = gettext("You must enter a valid IPv4 address for {$networkacl[$x]['acl_network']}.");
 		}
 	}
-	
+
 	if (!$input_errors) {
 
 		if ($pconfig['Submit'] == gettext("Save")) {
@@ -139,7 +139,8 @@ include("head.inc");
 <script type="text/javascript">
 	function mask_field(fieldname, fieldsize, n) {
 		return '<select name="' + fieldname + n + '" class="formselect" id="' + fieldname + n + '"><?php
-			for ($i = 128; $i >= 0; $i--) {
+			$start = 24; if (function_exists("is_ipaddrv6")) $start = "128";
+			for ($i = $start; $i >= 0; $i--) {
 					echo "<option value=\"$i\">$i</option>";
 			}
 		?></select>';
@@ -173,7 +174,7 @@ if (is_subsystem_dirty("unbound"))
 		print_info_box_np(gettext("The settings for Unbound DNS has changed. You must apply the configuration to take affect."));
 ?>
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
- 	<tr>
+	<tr>
 		<td class="tabnavtbl">
 			<ul id="tabnav">
 			<?php
@@ -186,7 +187,7 @@ if (is_subsystem_dirty("unbound"))
 			?>
 			</ul>
 		</td>
-	</tr>    
+	</tr>
 	<tr>
 		<td class="tabcont">
 
@@ -221,10 +222,10 @@ if (is_subsystem_dirty("unbound"))
 							<br/>
 							<span class="vexpl">
 								<?=gettext("Choose what to do with DNS requests that match the criteria specified below.");?> <br/>
-								<?=gettext("<b>Deny:</b> This actions stops queries from hosts within the netblock defined below.");?> <br/>
-								<?=gettext("<b>Refuse:</b> This actions also stops queries from hosts within the netblock defined below, but sends back DNS rcode REFUSED error message back tot eh client.");?> <br/>
-								<?=gettext("<b>Allow:</b> This actions allows queries from hosts within the netblock defined below.");?> <br/>
-								<?=gettext("<b>Allow Snoop:</b> This actions allows recursive and nonrecursive access from hosts within the netblock defined below. Used for cache snooping and ideally should only be configured for your administrative host.");?> <br/>
+								<?=gettext("<b>Deny:</b> This action stops queries from hosts within the netblock defined below.");?> <br/>
+								<?=gettext("<b>Refuse:</b> This action also stops queries from hosts within the netblock defined below, but sends a DNS rcode REFUSED error message back to the client.");?> <br/>
+								<?=gettext("<b>Allow:</b> This action allows queries from hosts within the netblock defined below.");?> <br/>
+								<?=gettext("<b>Allow Snoop:</b> This action allows recursive and nonrecursive access from hosts within the netblock defined below. Used for cache snooping and ideally should only be configured for your administrative host.");?> <br/>
 							</span>
 						</td>
 					</tr>

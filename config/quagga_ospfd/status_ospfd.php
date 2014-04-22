@@ -68,13 +68,11 @@ function doCmdT($title, $command) {
 
 	$execOutput = "";
 	$execStatus = "";
-	exec ($command . " 2>&1", $execOutput, $execStatus);
-	for ($i = 0; isset($execOutput[$i]); $i++) {
-		if ($i > 0) {
-			echo "\n";
-		}
-		echo htmlspecialchars($execOutput[$i],ENT_NOQUOTES);
+	$fd = popen("{$command} 2>&1", "r");
+	while (($line = fgets($fd)) !== FALSE) {
+		echo htmlspecialchars($line, ENT_NOQUOTES);
 	}
+	pclose($fd);
 	echo "</pre></tr>\n";
 	echo "</table>\n";
 }

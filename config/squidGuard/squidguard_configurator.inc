@@ -51,7 +51,12 @@ require_once('pfsense-utils.inc');
 require_once('pkg-utils.inc');
 require_once('filter.inc');
 require_once('service-utils.inc');
-require_once('squid.inc');
+
+# squid package must exists by default system path (for v.2.0/2.1)
+# todo: move include string to the squid-function call string position
+if (file_exists('/usr/local/pkg/squid.inc')) {
+    require_once('/usr/local/pkg/squid.inc');
+}
 
 # ------------------------------------------------------------------------------
 # Allow additional execution time 0 = no limit
@@ -89,8 +94,8 @@ define('CONFIG_SG_HEADER', "
 define('REDIRECTOR_OPTIONS_REM',   '# squidGuard options');
 define('REDIRECTOR_PROGRAM_OPT',   'redirect_program');
 define('REDIRECT_BYPASS_OPT',      'redirector_bypass');
-define('REDIRECT_CHILDREN_OPT',    'redirect_children');
-define('REDIRECTOR_PROCESS_COUNT', '3'); # redirector processes count will started
+define('REDIRECT_CHILDREN_OPT',    'url_rewrite_children');
+define('REDIRECTOR_PROCESS_COUNT', '5'); # redirector processes count will started
 
 # ------------------------------------------------------------------------------
 # squidguard config options
@@ -105,15 +110,31 @@ define('REDIRECT_URL_ARGS', '&a=%a&n=%n&i=%i&s=%s&t=%t&u=%u');
 # ------------------------------------------------------------------------------
 # squidguard system constants
 # ------------------------------------------------------------------------------
-define('SQUID_CONFIGFILE',              '/usr/local/etc/squid/squid.conf');
+
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version > 2.0) {
+	if (file_exists('/usr/pbi/squidguard-squid3-' . php_uname("m")))
+		define('SQUIDGUARD_LOCALBASE', '/usr/pbi/squidguard-squid3-' . php_uname("m"));
+	else
+		define('SQUIDGUARD_LOCALBASE', '/usr/pbi/squidguard-' . php_uname("m"));
+} else
+	define('SQUIDGUARD_LOCALBASE','/usr/local');
+
+if (!defined('SQUID_LOCALBASE') && ($pf_version > 2.0))
+	define('SQUID_LOCALBASE', '/usr/pbi/squid-' . php_uname("m"));
+elseif (!defined('SQUID_LOCALBASE'))
+	define('SQUID_LOCALBASE','/usr/local');
+
+define('SQUID_CONFIGFILE',              SQUID_LOCALBASE . '/etc/squid/squid.conf');
 define('TMP_DIR',                       '/var/tmp');
 #
 define('SQUIDGUARD_CONFIGFILE',         '/squidGuard.conf');
 define('SQUIDGUARD_CONFLOGFILE',        '/sg_configurator.log');
 define('SQUIDGUARD_LOGFILE',            'block.log');
-define('SQUIDGUARD_CONFBASE',           '/usr/local/etc/squid');
-define('SQUIDGUARD_WORKDIR',            '/usr/local/etc/squidGuard');
-define('SQUIDGUARD_BINPATH',            '/usr/local/bin');
+define('SQUIDGUARD_GUILOGFILE',         'squidGuard.log');
+define('SQUIDGUARD_CONFBASE',           SQUID_LOCALBASE . '/etc/squid');
+define('SQUIDGUARD_WORKDIR',            SQUIDGUARD_LOCALBASE . '/etc/squidGuard');
+define('SQUIDGUARD_BINPATH',            SQUIDGUARD_LOCALBASE . '/bin');
 define('SQUIDGUARD_TMP',                '/tmp/squidGuard');                             # SG temp
 define('SQUIDGUARD_VAR',                '/var/squidGuard');                             # SG variables
 define('SQUIDGUARD_STATE',              '/squidGuard.state');
@@ -126,7 +147,7 @@ define('SQUIDGUARD_LOGDIR',             '/var/squidGuard/log');
 define('SQUIDGUARD_WEBGUI_LOG',         '/squidguard_gui.log');
 define('SQUIDGUARD_WEBGUI_HISTORY_LOG', '/squidguard_gui_history.log');
 #
-define('SQUIDGUARD_SCR_LOGROTATE',      '/usr/local/etc/rc.d/squidGuard_logrotate');    # Logrotate script
+define('SQUIDGUARD_SCR_LOGROTATE',      SQUIDGUARD_LOCALBASE . '/etc/rc.d/squidGuard_logrotate');    # Logrotate script
 #
 # DB home catalog contains 'Blacklist' and 'User' sub-catalogs
 define('SQUIDGUARD_DB_BLACKLIST',       '/bl');
@@ -184,6 +205,7 @@ define('SQUIDGUARD_GUILOG_LEVEL',           SQUIDGUARD_INFO);     # log level
 define('SQUIDGUARD_GUILOG_MAXCOUNT',        500);                 # log max lines
 define('SQUIDGUARD_GUILOG_ENABLE',          true);                # on/off gui log - option override GUI settings
 define('SQUIDGUARD_LOG_ENABLE',             true);                # on/off SG  log - option override GUI settings
+define('SQUIDGUARD_LOGROTATE_MAXCOUNT',             1000);                # logrotate max lines
 
 #
 define('FLT_DEFAULT_ALL', 'all');
@@ -223,6 +245,12 @@ define('F_SQUIDGUARD',          'squidGuard');
 define('F_LOGDIR',              'logdir');
 define('F_DBHOME',              'dbhome');
 define('F_WORKDIR',             'workdir');
+define('F_LDAPENABLE',          'ldap_enable');
+define('F_LDAPBINDDN',          'ldapbinddn');
+define('F_LDAPBINDPASS',        'ldapbindpass');
+define('F_LDAPVERSION',         'ldapversion');
+define('F_STRIPNTDOMAIN',       'stripntdomain');
+define('F_STRIPREALM',          'striprealm');
 define('F_BINPATH',             'binpath');
 define('F_PROCCESSCOUNT',       'process_count');
 define('F_SQUIDCONFIGFILE',     'squid_configfile');
@@ -310,6 +338,7 @@ function sg_init($init = '')
         $squidguard_config[F_BINPATH]         = SQUIDGUARD_BINPATH;
         $squidguard_config[F_SQUIDCONFIGFILE] = SQUID_CONFIGFILE;
         $squidguard_config[F_PROCCESSCOUNT]   = REDIRECTOR_PROCESS_COUNT;
+        
     } else {
         # copy config from $init
         foreach($init as $key => $in)
@@ -371,7 +400,7 @@ function sg_reconfigure()
         if ($squidguard_config[F_WORKDIR])
             $conf_file = $squidguard_config[F_WORKDIR] . SQUIDGUARD_CONFIGFILE;
         file_put_contents($conf_file, $conf);
-        file_put_contents('/usr/local/etc/squid' . SQUIDGUARD_CONFIGFILE, $conf); # << squidGuard want config '/usr/local/etc/squid' by default
+        file_put_contents(SQUID_LOCALBASE . '/etc/squid' . SQUIDGUARD_CONFIGFILE, $conf); # << squidGuard want config '/usr/local/etc/squid' by default
         set_file_access($squidguard_config[F_WORKDIR], OWNER_NAME, 0755);
         conf_mount_ro();
         sg_addlog("sg_reconfigure", "Save squidGuard config to '$conf_file'.", SQUIDGUARD_INFO);
@@ -385,9 +414,9 @@ function sg_reconfigure()
 # ------------------------------------------------------------------------------
 # squid_reconfigure
 # Insert in '/usr/local/squid/etc/squid.conf' options:
-#     redirector_bypass on
+#     redirector_bypass off
 #     redirect_program /usr/local/squidGuard/bin/squidGuard -c /path_to_config_file
-#     redirect_children 1
+#     url_rewrite_children 5
 # ------------------------------------------------------------------------------
 
 function squid_reconfigure($remove_only = '')
@@ -396,7 +425,6 @@ function squid_reconfigure($remove_only = '')
     global $squidguard_config;
     $conf = '';
     $cust_opt = $config['installedpackages']['squid']['config'][0]['custom_options'];
-
     # remove old options
     if (!empty($cust_opt)) {
         $conf = explode(";", $cust_opt);
@@ -416,7 +444,7 @@ function squid_reconfigure($remove_only = '')
         $redirector_conf = $squidguard_config[F_WORKDIR] . SQUIDGUARD_CONFIGFILE;
 
         $conf[] = REDIRECTOR_PROGRAM_OPT . " $redirector_path -c $redirector_conf";
-        $conf[] = REDIRECT_BYPASS_OPT    . " on";
+        $conf[] = REDIRECT_BYPASS_OPT    . " off";
         $conf[] = REDIRECT_CHILDREN_OPT  . " " . REDIRECTOR_PROCESS_COUNT;
 
         sg_addlog("squid_reconfigure", "Add new redirector options to Squid config.", SQUIDGUARD_INFO);
@@ -425,10 +453,16 @@ function squid_reconfigure($remove_only = '')
     # update config
     if (is_array($conf)) $conf = implode(";", $conf);
 
-    $config['installedpackages']['squid']['config'][0]['custom_options'] = $conf;
-    write_config('Update redirector options to squid config.');
+	/* Only update squid options if we have something to do, otherwise this can interfere with squid's default options in a new install. */
+	if ($conf != $cust_opt) {
+		$config['installedpackages']['squid']['config'][0]['custom_options'] = $conf;
+		write_config('Update redirector options to squid config.');
+	}
 
-    squid_resync();
+    # resync squid package, if installed
+    if (function_exists('squid_resync')) {
+        squid_resync();
+    }
 }
 
 # ------------------------------------------------------------------------------
@@ -659,7 +693,7 @@ function sg_rebuild_db($shtag, $rdb_dbhome, $rdb_itemslist)
     $sh_scr[] = "chown -R -v " . OWNER_NAME . " $dbhome";
 
     # restart squid for changes to take effects
-    $sh_scr[] = "/usr/local/sbin/squid -k reconfigure";
+    $sh_scr[] = SQUID_LOCALBASE . "/sbin/squid -k reconfigure";
 
     # store & exec sh
     $sh_scr = implode("\n", $sh_scr);
@@ -822,6 +856,15 @@ function sg_create_config()
     $sgconf[] = CONFIG_SG_HEADER;
     $sgconf[] = "logdir {$squidguard_config[F_LOGDIR]}";
     $sgconf[] = "dbhome {$squidguard_config[F_DBHOME]}";
+    if ( $squidguard_config[F_LDAPENABLE] == 'on' ) {
+        $sgconf[] = "ldapbinddn {$squidguard_config[F_LDAPBINDDN]}";
+        $sgconf[] = "ldapbindpass {$squidguard_config[F_LDAPBINDPASS]}";
+        $sgconf[] = "ldapprotover {$squidguard_config[F_LDAPVERSION]}";
+        if ( $squidguard_config[F_STRIPNTDOMAIN] )
+            $sgconf[] = "stripntdomain true";
+        if ( $squidguard_config[F_STRIPREALM] )
+            $sgconf[] = "striprealm true";
+    }
 
     # --- Times ---
     if ($squidguard_config[F_TIMES]) {
@@ -853,13 +896,17 @@ function sg_create_config()
             $sg_tag->set("src", $src[F_NAME], "", $src[F_DESCRIPTION]);
 
             # separate IP, domains, usernames
-            $tsrc = explode(" ", trim($src[F_SOURCE]));
-            foreach($tsrc as $sr) {
-                    $sr = trim($sr);
-                    if     (empty($sr))           continue;
-                    if     (is_ipaddr_valid($sr)) $sg_tag->items[] = "ip     $sr";
-                    elseif (is_domain_valid($sr)) $sg_tag->items[] = "domain $sr";
-                    elseif (is_username($sr))     $sg_tag->items[] = "user   " . str_replace("'", "", $sr);
+            if (strpos(trim($src[F_SOURCE]), 'ldapusersearch') === false) {
+                $tsrc = explode(" ", trim($src[F_SOURCE]));
+                foreach($tsrc as $sr) {
+                        $sr = trim($sr);
+                        if     (empty($sr))           continue;
+                        if     (is_ipaddr_valid($sr)) $sg_tag->items[] = "ip     $sr";
+                        elseif (is_domain_valid($sr)) $sg_tag->items[] = "domain $sr";
+                        elseif (is_username($sr))     $sg_tag->items[] = "user   " . str_replace("'", "", $sr);
+                }
+            } else {
+                $sg_tag->items[] = trim($src[F_SOURCE]);
             }
 
             if ($squidguard_config[F_ENABLELOG] == 'on' ) {
@@ -1146,6 +1193,16 @@ function sg_create_simple_config($blk_dbhome, $blk_destlist, $redirect_to = "404
     # init section
     $sgconf[] = "logdir $logdir";
     $sgconf[] = "dbhome $dbhome";
+    if ( $squidguard_config[F_LDAPENABLE] == 'on' ) {
+        $sgconf[] = "ldapbinddn {$squidguard_config[F_LDAPBINDDN]}";
+        $sgconf[] = "ldapbindpass {$squidguard_config[F_LDAPBINDPASS]}";
+        $sgconf[] = "ldapprotover {$squidguard_config[F_LDAPVERSION]}";
+        if ( $squidguard_config[F_STRIPNTDOMAIN] )
+            $sgconf[] = "stripntdomain true";
+        if ( $squidguard_config[F_STRIPREALM] )
+            $sgconf[] = "striprealm true";
+    }
+
     $sgconf[] = "";
 
     # destination section
@@ -1729,11 +1786,13 @@ function sg_check_src($sgx, $input_errors)
 
     # source may be as one ('source') field or as two ('ip' and 'domain') fields
     $src = (isset($sgx[F_SOURCE])) ? $sgx[F_SOURCE] : $sgx[F_IP] . " " . $sgx[F_DOMAINS];
-    $src = explode(" ", $src);
-    foreach ($src as $s_item) {
-        if ($s_item) {
-            if (!is_ipaddr_valid($s_item) and !is_domain_valid($s_item) and !is_username($s_item))
-                $elog[] = "SRC '{$sgx[F_NAME]}': Item '$s_item' is not a ip address or a domain or a 'username'.";
+    if (strpos($sgx[F_SOURCE], 'ldapusersearch') === false) {
+        $src = explode(" ", $src);
+        foreach ($src as $s_item) {
+                if ($s_item) {
+                        if (!is_ipaddr_valid($s_item) and !is_domain_valid($s_item) and !is_username($s_item) and (strpos($s_item, 'ldapusersearch') !== false))
+                                $elog[] = "SRC '{$sgx[F_NAME]}': Item '$s_item' is not a ip address or a domain or a 'username'.";
+                }
         }
     }
 
@@ -1862,18 +1921,30 @@ function acl_remove_blacklist_items($items)
 # -----------------------------------------------------------------------------
 function sg_script_logrotate()
 {
-    $lines = 1000; # SG logfile truncate lines count
+	$lines = SQUIDGUARD_LOGROTATE_MAXCOUNT;
+	
+	global $squidguard_config;
 
-    global $squidguard_config;
-    $sglogname = $squidguard_config[F_LOGDIR] . "/" . SQUIDGUARD_LOGFILE;
+	$sglogname = $squidguard_config[F_LOGDIR] . "/" . SQUIDGUARD_LOGFILE;
+	$sgguilogname = $squidguard_config[F_LOGDIR] . "/" . SQUIDGUARD_GUILOGFILE;
+	$sgconflogname = $squidguard_config[F_LOGDIR] . "/" . SQUIDGUARD_CONFLOGFILE;
     $res =
 <<<EOD
 #!/bin/sh
 #
 # This file generated automaticly with SquidGuard configurator
+# Rotates the block logfile
 tail -{$lines} {$sglogname} > {$sglogname}.0
 tail -{$lines} {$sglogname}.0 > {$sglogname}
 rm -f {$sglogname}.0
+# Rotates the squidguard GUI logile
+tail -{$lines} {$sgguilogname} > {$sgguilogname}.0
+tail -{$lines} {$sgguilogname}.0 > {$sgguilogname}
+rm -f {$sgguilogname}.0
+# Rotates the squidguard conf logile
+tail -{$lines} {$sgconflogname} > {$sgconflogname}.0
+tail -{$lines} {$sgconflogname}.0 > {$sgconflogname}
+rm -f {$sgconflogname}.0
 EOD;
     return $res;
 }
@@ -2186,7 +2257,7 @@ function sg_update_blacklist($from_file)
             set_file_access($dbhome, OWNER_NAME, 0755);
 
             squidguard_update_log("Reconfigure Squid proxy.");
-            mwexec("/usr/local/sbin/squid -k reconfigure");
+            mwexec(SQUID_LOCALBASE . "/sbin/squid -k reconfigure");
 
             squidguard_update_log("Blacklist update complete.");
 
@@ -2325,7 +2396,7 @@ function squidguard_blacklist_restore_arcdb()
         squidguard_rebuild_db("arc_", $dbhome, $files);
 
         squidguard_update_log("Reconfigure Squid proxy.");
-        mwexec("/usr/local/sbin/squid -k reconfigure");
+        mwexec(SQUID_LOCALBASE . "/sbin/squid -k reconfigure");
 
         conf_mount_ro();
         squidguard_update_log("Restore success.");

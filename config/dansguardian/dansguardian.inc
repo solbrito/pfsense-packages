@@ -2,13 +2,13 @@
 /*
 	dansguardian.inc
 	part of the Dansguardian package for pfSense
-	Copyright (C) 2012 Marcello Coutinho
+	Copyright (C) 2012-2013 Marcello Coutinho
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
 
-	1. Redistributions of source code must retain the above copyright notice,
+	1. Redistributions of source code MUST retain the above copyright notice,
 	   this list of conditions and the following disclaimer.
 
 	2. Redistributions in binary form must reproduce the above copyright
@@ -29,7 +29,7 @@
 */
 
 require_once("util.inc");
-require("globals.inc");
+require_once("globals.inc");
 #require("guiconfig.inc");
 
 $pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
@@ -87,10 +87,11 @@ function check_ca_hashes(){
 				$cert=0;
 				}
 			}
+		conf_mount_ro();
 		}
 }
 
-function sync_package_dansguardian() {
+function sync_package_dansguardian($via_rpc="no",$install_process=false) {
 	global $config,$g;
 
 	# detect boot process
@@ -101,8 +102,13 @@ function sync_package_dansguardian() {
 			$boot_process="on";
 	}
 
-	if (is_process_running('dansguardian') && isset($boot_process))
+	if (is_process_running('dansguardian') && isset($boot_process) && $via_rpc=="no"){
+		log_error("[Dansguardian] - Detected boot process pr:".is_process_running('dansguardian')." bp:".isset($boot_process)." rpc:".$via_rpc);
 		return;
+		}
+	else{
+		log_error("[Dansguardian] - Save settings package call pr:".is_process_running('dansguardian')." bp:".isset($boot_process)." rpc:".$via_rpc);
+	}
 		
 	#assign xml arrays
 	if (!is_array($config['installedpackages']['dansguardian']))
@@ -136,7 +142,7 @@ function sync_package_dansguardian() {
 	#daemon options
 	$dansguardian_enabled=$dansguardian['enable_dg'];
 	$filterport=($dansguardian['filterports']?$dansguardian['filterports']:"8080");
-	$softrestart=(preg_match('/softrestart/',$dansguardian['daemon_options'])?"yes":"no");
+	$softrestart=(preg_match('/softrestart/',$dansguardian['daemon_options'])?"on":"off");
 	$nodaemon=(preg_match('/nodaemon/',$dansguardian['daemon_options'])?"yes":"off");
 	if (preg_match("/(\d+)\/(\d+)/",$dansguardian['children'],$matches)){
 		$minchildren=$matches[1];
@@ -159,6 +165,7 @@ function sync_package_dansguardian() {
 	$preforkchildren=($dansguardian['preforkchildren']?$dansguardian['preforkchildren']:"10");
 	$proxyip=($dansguardian['proxyip']?$dansguardian['proxyip']:"127.0.0.1");
 	$proxyport=($dansguardian['proxyport']?$dansguardian['proxyport']:"127.0.0.1");
+	$proxytimeout=($dansguardian['proxytimeout']?$dansguardian['proxytimeout']:"30");
 	
 	#general options
 	$urlcachenumber=($dansguardian_config['urlcachenumber']?$dansguardian_config['urlcachenumber']:"1000");
@@ -179,18 +186,20 @@ function sync_package_dansguardian() {
 	$icapscan=(preg_match('/icapscan/',$dansguardian_config['content_scanners'])?"on":"off");
 	$contentscannertimeout=($dansguardian_config['contentscannertimeout']?$dansguardian_config['contentscannertimeout']:"60");
 	$contentscanexceptions=($dansguardian_config['contentscanexceptions']?"on":"off");
+	$icapurl=($dansguardian_config['icapurl']?$dansguardian_config['icapurl']:"icap://icapserver:1344/avscan");
 	$recheckreplacedurls=(preg_match('/recheckreplacedurls/',$dansguardian_config['misc_options'])?"on":"off");
 	$forwardedfor=(preg_match('/forwardedfor/',$dansguardian_config['misc_options'])?"on":"off");
 	$recheckreplacedurls=(preg_match('/icapscan/',$dansguardian_config['misc_options'])?"on":"off");
 	$usexforwardedfor=(preg_match('/usexforwardedfor/',$dansguardian_config['misc_options'])?"on":"off");
 	$authplugin=(preg_match('/usr/',$dansguardian_config['auth_plugin'])?"authplugin = '".$dansguardian_config['auth_plugin']."'":"");
-	/*if ($dansguardian_config['auth_plugin']!=""){
+	if ($dansguardian_config['auth_plugin']!=""){
 		$auth_plugins=explode(",",$dansguardian_config['auth_plugin']);
 		$authplugin="";
 		foreach ($auth_plugins as $auth_selected)
-			$authplugin.="authplugin = '".$auth_selected."'\n";
+			if ($auth_selected != "none")
+				$authplugin.="authplugin = '".preg_replace("@/usr/local@",DANSGUARDIAN_DIR,$auth_selected)."'\n";
 	}
-	*/
+	
 	#limits
 	$maxuploadsize=($dansguardian_limits['maxuploadsize']?$dansguardian_limits['maxuploadsize']:"-1");
 	$maxcontentfiltersize=($dansguardian_limits['maxcontentfiltersize']?$dansguardian_limits['maxcontentfiltersize']:"256");
@@ -214,8 +223,8 @@ function sync_package_dansguardian() {
 	$reportlanguage=($dansguardian_log['report_language']?$dansguardian_log['report_language']:"ukenglish");
 	$showweightedfound=(preg_match('/showweightedfound/',$dansguardian_log['report_options'])?"on":"off");
 	$usecustombannedflash=(preg_match('/usecustombannedflash/',$dansguardian_log['report_options'])?"on":"off");
-	if (file_exists('/usr/local/share/dansguardian/blockedflash.swf'))
-		$custombannedflashfile="custombannedflashfile = '/usr/local/share/dansguardian/blockedflash.swf'";
+	if (file_exists(DANSGUARDIAN_DIR.'/share/dansguardian/blockedflash.swf'))
+		$custombannedflashfile="custombannedflashfile = '".DANSGUARDIAN_DIR."/share/dansguardian/blockedflash.swf'";
 	$usecustombannedimage=(preg_match('/usecustombannedimage/',$dansguardian_log['report_options'])?"on":"off");
 	$nonstandarddelimiter=(preg_match('/nonstandarddelimiter/',$dansguardian_log['report_options'])?"on":"off");
 	
@@ -224,6 +233,7 @@ function sync_package_dansguardian() {
 	$nologger=(preg_match('/nologger/',$dansguardian_log['logging_options'])?"on":"off");
 	$logadblocks=(preg_match('/logadblocks/',$dansguardian_log['logging_options'])?"on":"off");
 	$anonymizelogs=(preg_match('/anonymizelogs/',$dansguardian_log['logging_options'])?"on":"off");
+	$logsyslog=(preg_match('/logsyslog/',$dansguardian_log['logging_options'])?"on":"off");
 
 	$loglevel=($dansguardian_log['loglevel']?$dansguardian_log['loglevel']:"2");
 	$logexceptionhits=($dansguardian_log['logexceptionhits']?$dansguardian_log['logexceptionhits']:"2");
@@ -269,7 +279,7 @@ function sync_package_dansguardian() {
 					"/lists/exceptioniplist",
 					"/lists/pics");
 	
-	$dansguardian_dir="/usr/local/etc/dansguardian";
+	$dansguardian_dir= DANSGUARDIAN_DIR . "/etc/dansguardian";
 	foreach ($files as $file)
 		if (! file_exists($dansguardian_dir.$file.'.sample')){
 			$new_file="";
@@ -299,14 +309,14 @@ function sync_package_dansguardian() {
 			exec("/usr/bin/openssl x509 -hash -noout -in /etc/ssl/demoCA/cacert.pem",$cert_hash);
 			file_put_contents("/usr/local/share/certs/".$cert_hash[0].".0",base64_decode($ca_cert['crt']));
 			$ca_pem = "cacertificatepath = '/etc/ssl/demoCA/cacert.pem'";
-		$generatedcertpath= "generatedcertpath = '/etc/ssl/demoCA/certs/'";
+		$generatedcertpath= "generatedcertpath = '".$dansguardian_dir."/ssl/generatedcerts'";
 		#generatedcertpath = ".$dansguardian_dir . "/ssl/generatedcerts";
 		$generatedlinkpath= "generatedlinkpath = '".$dansguardian_dir . "/ssl/generatedlinks'";
 			}
 		$svr_cert = lookup_cert($dansguardian_config["dcert"]);
 		if ($svr_cert != false) {
 			if(base64_decode($svr_cert['prv'])) {
-				file_put_contents("/etc/ssl/demoCA/private/serverkey.pem",base64_decode($svr_cert['prv']));
+				file_put_contents("/etc/ssl/demoCA/private/serverkey.pem",base64_decode($svr_cert['prv']).base64_decode($svr_cert['crt']));
 				$cert_key = "certprivatekeypath = '/etc/ssl/demoCA/private/serverkey.pem' ";
 			}
 		}
@@ -314,31 +324,31 @@ function sync_package_dansguardian() {
 	
 	#contentscanners preg_replace patterns
 	$match[0]="/(conf)/";
-	$match[1]="/(\/usr.local)/";
+	$match[1]="/\/usr.local|".str_replace("/","\\/",DANSGUARDIAN_DIR)."/";
 	$match[2]="/,/";
 	$replace[0]="$1'";
-	$replace[1]="contentscanner = '$1";
+	$replace[1]="contentscanner = '".DANSGUARDIAN_DIR;
 	$replace[2]="\n";
 	
 	$contentscanners=preg_replace($match,$replace,$dansguardian_config['content_scanners']);
 	
 	#includes preg_replace patterns
 	$match[0]="/(.)$/";
-	$match[1]="/\/usr.local/";
+	$match[1]="/\/usr.local|".str_replace("/","\\/",DANSGUARDIAN_DIR)."/";
 	$match[2]="/,/";
 	$replace[0]="$1>\n";
-	$replace[1]="\n.Include</usr/local";
+	$replace[1]="\n.Include<".DANSGUARDIAN_DIR;
 	$replace[2]=">";
 
 	#phrase ACL
 	#create a default setup if not exists
 	if (!is_array($config['installedpackages']['dansguardianphraseacl']['config'])){
-		$banned_file=file("/usr/local/etc/dansguardian/lists/bannedphraselist");
+		$banned_file=file(DANSGUARDIAN_DIR . "/etc/dansguardian/lists/bannedphraselist");
 		foreach($banned_file as $file_line)
 			if (preg_match ("/^.Include<(\S+)>/",$file_line,$matches))
 			 	$banned_includes .= $matches[1].",";
 		
-		$weighted_file=file("/usr/local/etc/dansguardian/lists/weightedphraselist");
+		$weighted_file=file(DANSGUARDIAN_DIR . "/etc/dansguardian/lists/weightedphraselist");
 		foreach($weighted_file as $file_line)
 			if (preg_match ("/^.Include<(\S+)>/",$file_line,$matches))
 			 	$weighted_includes .= $matches[1].",";
@@ -716,10 +726,11 @@ function sync_package_dansguardian() {
 																				'urlacl'=> "Default",
 																				'group_options' => "scancleancache,infectionbypasserrorsonly",
 																				'reportinglevel'=>'3',
+																				'group_name_source'=>'name',
 																				'mode'=> "1",
 																				'report_level'=>"global");
 
-	$groups=array("scancleancache","hexdecodecontent","blockdownloads","enablepics","deepurlanalysis","infectionbypasserrorsonly","disablecontentscan","sslcertcheck","sslmitm");
+	$groups=array("scancleancache","hexdecodecontent","blockdownloads","enablepics","deepurlanalysis","infectionbypasserrorsonly","disablecontentscan","sslcheckcert","sslmitm");
 	#loop on array
 	$count=1;
 	$user_xml="";
@@ -735,7 +746,7 @@ function sync_package_dansguardian() {
 		$dansguardian_groups['embeddedurlweight']=($dansguardian_groups['embeddedurlweight']?$dansguardian_groups['embeddedurlweight']:"0");
 		$dansguardian_groups['bypass']=($dansguardian_groups['bypass']?$dansguardian_groups['bypass']:"0");
 		$dansguardian_groups['infectionbypass']=($dansguardian_groups['infectionbypass']?$dansguardian_groups['infectionbypass']:"0");
-		$dansguardian_groups['mitmkey']=($dansguardian_groups['mitmkey']?$dansguardian_groups['mitmkey']:"dgs3dD3da");
+		$dansguardian_groups['maxuploadsize']=(is_numeric($dansguardian_groups['maxuploadsize'])?$dansguardian_groups['maxuploadsize']:$maxuploadsize);
 		switch ($dansguardian_groups['reportinglevel']){
 			case "1":
 			case "2":
@@ -759,8 +770,72 @@ function sync_package_dansguardian() {
 				$groupaccessdeniedaddress="";
 		}
 
-		foreach ($groups as $group)
+		foreach ($groups as $group){
 			$dansguardian_groups[$group]=(preg_match("/$group/",$dansguardian_groups['group_options'])?"on":"off");
+		}
+		
+		
+		#create group list files
+		$lists=array("phraseacl"   => array("bannedphrase","weightedphrase","exceptionphrase"),
+					 "siteacl"     => array("bannedsite","greysite","exceptionsite","exceptionfilesite","logsite"),
+					 "urlacl"      => array("bannedurl","greyurl","exceptionurl","exceptionregexpurl","bannedregexpurl","urlregexp","exceptionfileurl","logurl","logregexpurl"),
+					 "contentacl"  => array("contentregexp"),
+					 "extensionacl"=> array("exceptionextension","exceptionmimetype","bannedextension","bannedmimetype"),
+					 "headeracl"   => array("headerregexp","bannedregexpheader"),
+					 "searchacl"   => array("searchengineregexp","bannedsearchterm","weightedsearchterm","exceptionsearchterm")
+					 );
+		foreach ($lists as $list_key => $list_array){
+		// verify groups acls to avoid errors on empty acl group options
+		if (!preg_match("/\w+/",$dansguardian_groups[$list_key])){
+			log_error("dansguardian - Config warning, Group {$dansguardian_group_name} {$list_key} cannot be empty! Trying to load sample values");
+			}
+			foreach ($list_array as $list_value){
+				#read all access lists applied tho this group option
+				foreach (explode(",",$dansguardian_groups[$list_key]) as $dacl){
+					if (! is_array(${$list_value}))
+						${$list_value}=array();
+					$dacl=(preg_match("/\w+/",$dacl)? $dacl : "sample");
+					$file_temp=file_get_contents(DANSGUARDIAN_DIR . "/etc/dansguardian/lists/{$list_value}list.{$dacl}")."\n";
+					${$list_value}=array_merge(explode("\n",$file_temp),${$list_value});
+				}
+				#add a package warning
+				array_unshift(${$list_value},"#Do not edit this file.","#It's created by dansguardian package and overwrited every config save.");
+				#save group file and unset array
+				file_put_contents(DANSGUARDIAN_DIR . "/etc/dansguardian/lists/{$list_value}list.g_{$dansguardian_groups['name']}",implode("\n",array_unique(${$list_value}))."\n",LOCK_EX);
+				unset(${$list_value});
+				}
+		}
+		/*
+		bannedphraselist = '/usr/local/etc/dansguardian/lists/bannedphraselist.{$dansguardian_groups['phraseacl']}'
+		weightedphraselist = '/usr/local/etc/dansguardian/lists/weightedphraselist.{$dansguardian_groups['phraseacl']}'
+		exceptionphraselist = '/usr/local/etc/dansguardian/lists/exceptionphraselist.{$dansguardian_groups['phraseacl']}'
+		bannedsitelist = '/usr/local/etc/dansguardian/lists/bannedsitelist.{$dansguardian_groups['siteacl']}'
+		greysitelist = '/usr/local/etc/dansguardian/lists/greysitelist.{$dansguardian_groups['siteacl']}'
+		exceptionsitelist = '/usr/local/etc/dansguardian/lists/exceptionsitelist.{$dansguardian_groups['siteacl']}'
+		bannedurllist = '/usr/local/etc/dansguardian/lists/bannedurllist.{$dansguardian_groups['urlacl']}'
+		greyurllist = '/usr/local/etc/dansguardian/lists/greyurllist.{$dansguardian_groups['urlacl']}'
+		exceptionurllist = '/usr/local/etc/dansguardian/lists/exceptionurllist.{$dansguardian_groups['urlacl']}'
+		exceptionregexpurllist = '/usr/local/etc/dansguardian/lists/exceptionregexpurllist.{$dansguardian_groups['urlacl']}'
+		bannedregexpurllist = '/usr/local/etc/dansguardian/lists/bannedregexpurllist.{$dansguardian_groups['urlacl']}'
+		contentregexplist = '/usr/local/etc/dansguardian/lists/contentregexplist.{$dansguardian_groups['contentacl']}'
+		urlregexplist = '/usr/local/etc/dansguardian/lists/urlregexplist.{$dansguardian_groups['urlacl']}'
+		exceptionextensionlist = '/usr/local/etc/dansguardian/lists/exceptionextensionlist.{$dansguardian_groups['extensionacl']}'
+		exceptionmimetypelist = '/usr/local/etc/dansguardian/lists/exceptionmimetypelist.{$dansguardian_groups['extensionacl']}'
+		bannedextensionlist = '/usr/local/etc/dansguardian/lists/bannedextensionlist.{$dansguardian_groups['extensionacl']}'
+		bannedmimetypelist = '/usr/local/etc/dansguardian/lists/bannedmimetypelist.{$dansguardian_groups['extensionacl']}'
+		exceptionfilesitelist = '/usr/local/etc/dansguardian/lists/exceptionfilesitelist.{$dansguardian_groups['siteacl']}'
+		exceptionfileurllist = '/usr/local/etc/dansguardian/lists/exceptionfileurllist.{$dansguardian_groups['urlacl']}'
+		logsitelist = '/usr/local/etc/dansguardian/lists/logsitelist.{$dansguardian_groups['siteacl']}'
+		logurllist = '/usr/local/etc/dansguardian/lists/logurllist.{$dansguardian_groups['urlacl']}'
+		logregexpurllist = '/usr/local/etc/dansguardian/lists/logregexpurllist.{$dansguardian_groups['urlacl']}'
+		headerregexplist = '/usr/local/etc/dansguardian/lists/headerregexplist.{$dansguardian_groups['headeracl']}'
+		bannedregexpheaderlist = '/usr/local/etc/dansguardian/lists/bannedregexpheaderlist.{$dansguardian_groups['headeracl']}'
+		searchengineregexplist = '/usr/local/etc/dansguardian/lists/searchengineregexplist.{$dansguardian_groups['searchacl']}'
+		bannedsearchtermlist = '/usr/local/etc/dansguardian/lists/bannedsearchtermlist.{$dansguardian_groups['searchacl']}'
+		weightedsearchtermlist = '/usr/local/etc/dansguardian/lists/weightedsearchtermlist.{$dansguardian_groups['searchacl']}'
+		exceptionsearchtermlist = '/usr/local/etc/dansguardian/lists/exceptionsearchtermlist.{$dansguardian_groups['searchacl']}'
+		*/ 
+		$dg_dir=DANSGUARDIAN_DIR;
 		include("/usr/local/pkg/dansguardianfx.conf.template");
 		file_put_contents($dansguardian_dir."/dansguardianf".$count.".conf", $dgf, LOCK_EX);
 		
@@ -833,7 +908,7 @@ EOF;
 			<fielddescr>Users</fielddescr>
 			<fieldname>info_checkbox</fieldname>
 			<type>checkbox</type>
-			<description><![CDATA[Dansguardian users are required only when you have more then one group.<br>All unauthenticated users or unlisted uses will match first filter group.]]></description>
+			<description><![CDATA[Dansguardian users are required only when you have more then one group.<br>All unauthenticated users or unlisted users will match first filter group.]]></description>
 		</field>
 EOF;
 	}
@@ -842,9 +917,9 @@ EOF;
 	#Create/update filtergroupsiplist
 	file_put_contents($dansguardian_dir."/lists/authplugins/ipgroups",$filtergroupsiplist,LOCK_EX);
 	#Create/update userlist xml file
-	$ips_xml_header=file_get_contents("/usr/local/pkg/dansguardian_ips_header.xml");
-	$user_xml_header=file_get_contents("/usr/local/pkg/dansguardian_users_header.xml");
-	$user_xml_footer=file_get_contents("/usr/local/pkg/dansguardian_users_footer.xml");
+	$ips_xml_header=file_get_contents("/usr/local/pkg/dansguardian_ips_header.template");
+	$user_xml_header=file_get_contents("/usr/local/pkg/dansguardian_users_header.template");
+	$user_xml_footer=file_get_contents("/usr/local/pkg/dansguardian_users_footer.template");
 	file_put_contents("/usr/local/pkg/dansguardian_users.xml",$user_xml_header.$user_xml.$user_xml_footer,LOCK_EX);
 	file_put_contents("/usr/local/pkg/dansguardian_ips.xml",$ips_xml_header.$ips_xml.$user_xml_footer,LOCK_EX);
 	
@@ -853,29 +928,36 @@ EOF;
 		file_put_contents("/usr/local/share/dansguardian/languages/".$reportlanguage."/template.html",dg_text_area_decode($dansguardian_log['report_file']),LOCK_EX);
 	
 	#check blacklist download files
-	if ($dansguardian_blacklist['cron']=="force_download"){
-		log_error("Blacklist udpate process started");
-		file_notice("Dansguardian - Blacklist udpate process started","");
-		file_put_contents("/root/dansguardian_custom.script",base64_decode($dansguardian_blacklist['custom_script']),LOCK_EX);
-		if ($dansguardian_blacklist['enable_custom_script'] && $dansguardian_blacklist['custom_script'] != "")
-			mwexec_bg("/root/dansguardian_custom.script");
-		else
-			mwexec_bg("/usr/local/bin/php /usr/local/www/dansguardian.php fetch_blacklist");
+	if ($install_process == true){
+		require_once("/usr/local/www/dansguardian.php");
+		fetch_blacklist(false,true);
+		update_output_window("Blacklist check done, continuing package config sync.");
 		}
-	#update xml categories from downloaded file
-	if ($dansguardian_blacklist['cron']=="force_update"){
-		$config['installedpackages']['dansguardianblacklist']['config'][0]['cron']="never";
-		mwexec_bg("/usr/local/bin/php /usr/local/www/dansguardian.php update_lists");
-	}
+	else{
+		if ($dansguardian_blacklist['cron']=="force_download"){
+			log_error("Blacklist update process started");
+			file_notice("Dansguardian - Blacklist update process started","");
+			file_put_contents("/root/dansguardian_custom.script",base64_decode($dansguardian_blacklist['custom_script']),LOCK_EX);
+			if ($dansguardian_blacklist['enable_custom_script'] && $dansguardian_blacklist['custom_script'] != "")
+				mwexec_bg("/root/dansguardian_custom.script");
+			else
+				mwexec_bg("/usr/local/bin/php /usr/local/www/dansguardian.php fetch_blacklist");
+			}
+		#update xml categories from downloaded file
+		if ($dansguardian_blacklist['cron']=="force_update"){
+			$config['installedpackages']['dansguardianblacklist']['config'][0]['cron']="never";
+			mwexec_bg("/usr/local/bin/php /usr/local/www/dansguardian.php update_lists");
+		}
 	
-	#Import default blacklists 
-	if (!is_array($config['installedpackages']['dansguardianblacklistsurls']['config']))
-		mwexec_bg("/usr/local/bin/php /usr/local/www/dansguardian.php update_lists");
-
+		#Import default blacklists 
+		if (!is_array($config['installedpackages']['dansguardianblacklistsurls']['config']))
+			mwexec_bg("/usr/local/bin/php /usr/local/www/dansguardian.php update_lists");
+	}
 	#get clamav user
-	$cconf="/usr/local/etc/clamd.conf";
+	$cconf= DANSGUARDIAN_DIR. "/etc/clamd.conf";
 	$cconf_file=file_get_contents($cconf);
 	if (preg_match("/User (\w+)/",$cconf_file,$matches)){
+		mwexec("/usr/sbin/pw user show {$matches[1]} || /usr/sbin/pw user add -n {$matches[1]} -s /usr/sbin/nologin");
 		$daemonuser = $matches[1];
 		$daemongroup = 'nobody';
 	}
@@ -884,7 +966,6 @@ EOF;
 		$daemongroup = 'nobody';
 	}
 	$filtergroups=($count > 1?($count -1):1);	
-	
 	$filterip="";
 	$filterports="";
 	foreach (explode(",", $dansguardian['interface']) as $i => $iface) {
@@ -896,18 +977,19 @@ EOF;
 	$filterip=($filterip==""?"filterip = ":$filterip);
 	$filterports=($filterports==""?"filterports = $filterport":$filterports);
 	include("/usr/local/pkg/dansguardian.conf.template");	
+	include("/usr/local/pkg/icapscan.conf.template");	
 
 	#check cron_tab
 	$new_cron=array();
 	$cron_found=0;
 	if (is_array($config['cron']['item']))
 		foreach($config['cron']['item'] as $cron)
-			if (preg_match("/usr.local.(bin.freshclam|www.dansguardian)/",$cron["command"]))
+			if (preg_match("@(".DANSGUARDIAN_DIR."|/usr/local)/(bin.freshclam|www/dansguardian)@",$cron["command"]))
 				$cron_found++;
 			else
 				$new_cron['item'][]=$cron;
 				
-	$cron_cmd="/usr/local/bin/freshclam";
+	$cron_cmd= DANSGUARDIAN_DIR."/bin/freshclam";
 	if($dansguardian_config['cron'] && preg_match("/clamd/",$dansguardian_config['content_scanners']))
 		switch ($dansguardian_config['cron']){
 			case "day":
@@ -985,6 +1067,7 @@ EOF;
 	$cron_cmd="/usr/local/bin/php /usr/local/www/dansguardian_ldap.php";
 	if (is_array($config['installedpackages']['dansguardiangroups']['config']))
 	 foreach ($config['installedpackages']['dansguardiangroups']['config'] as $dansguardian_groups){
+	  $dans_group_source=($dansguardian_groups['groupnamesource'] !="" ? $dansguardian_groups['groupnamesource'] : "name");
 	  if(preg_match('/(\d+)m/',$dansguardian_groups['freq'],$matches)){
 				$new_cron['item'][]=array(	"minute" =>	"*/".$matches[1],
 											"hour"	 =>	"*",
@@ -992,7 +1075,7 @@ EOF;
 											"month"  =>	"*",
 											"wday"	 =>	"*",
 											"who"	 =>	"root",
-											"command"=>	$cron_cmd." ".$dansguardian_groups['name']);
+											"command"=>	"{$cron_cmd} $dans_group_source '{$dansguardian_groups[$dans_group_source]}'");
 				$config['cron']=$new_cron;
 				$cron_found++;
 		}
@@ -1003,7 +1086,7 @@ EOF;
 											"month"  =>	"*",
 											"wday"	 =>	"*",
 											"who"	 =>	"root",
-											"command"=>	$cron_cmd." ".$dansguardian_groups['name']);
+											"command"=>	"{$cron_cmd} $dans_group_source '{$dansguardian_groups[$dans_group_source]}'");
 				$config['cron']=$new_cron;
 				$cron_found++;
 		}
@@ -1012,7 +1095,7 @@ EOF;
 	conf_mount_rw();
 
 	write_config();
-	
+
 	#update cron
 	if ($cron_found > 0){
 		$config['cron']=$new_cron;
@@ -1020,7 +1103,7 @@ EOF;
 		configure_cron();
 	}
 	
-	$dirs=array('/usr/local/etc/dansguardian/lists/bannedrooms/',
+	$dirs=array(DANSGUARDIAN_DIR . '/etc/dansguardian/lists/bannedrooms/',
 				'/var/log/dansguardian');
 
 	foreach ($dirs as $dir)
@@ -1028,55 +1111,60 @@ EOF;
 			mkdir ($dir,0755,true);
 	
 	#update file owner
-	mwexec("chown -R $daemonuser:$daemongroup /usr/local/etc/dansguardian");
+	mwexec("chown -R $daemonuser:$daemongroup ".DANSGUARDIAN_DIR."/etc/dansguardian");
 	mwexec("chown -R $daemonuser:$daemongroup /var/log/dansguardian");
 	
 	#create config files
 	file_put_contents($dansguardian_dir."/dansguardian.conf", $dg, LOCK_EX);
+	file_put_contents($dansguardian_dir."/contentscanners/icapscan.conf", $icapconf, LOCK_EX);
 	
 	#check virus_scanner options
-	$libexec_dir="/usr/local/libexec/dansguardian/";
-	if (preg_match("/clamd/",$dansguardian_config['content_scanners'])){
+	$libexec_dir= DANSGUARDIAN_DIR."/libexec/dansguardian/";
+	if ($install_process==true)
+		update_output_window("Skipping clamav check during package install.");
+	if (preg_match("/clamd/",$dansguardian_config['content_scanners']) && $install_process==false){
 			
 		if (!(file_exists('/var/db/clamav/main.cvd')||file_exists('/var/db/clamav/main.cld'))){
 			file_notice("Dansguardian - No antivirus database found for clamav, running freshclam in background.","");
-			log_error('No antivirus database found for clamav, running freshclam in background.');
-			mwexec_bg('/usr/local/bin/freshclam');
+			log_error('No antivirus database found for clamav, running freshclam in background. Content-scanner may not work until freshclam finishes.');
+			mwexec_bg(DANSGUARDIAN_DIR.'/bin/freshclam && /usr/local/etc/rc.d/clamav-clamd');
 			}
-				
-			$match=array();
-			$match[0]='/NO/';
-			$replace=array();
-			$replace[0]='YES';
-
 			#clamdscan.conf dansguardian file	
-			$cconf="/usr/local/etc/dansguardian/contentscanners/clamdscan.conf";
+			$cconf=DANSGUARDIAN_DIR . "/etc/dansguardian/contentscanners/clamdscan.conf";
 			$cconf_file=file_get_contents($cconf);
 			if (preg_match('/#clamdudsfile/',$cconf_file)){
 				$cconf_file=preg_replace('/#clamdudsfile/','clamdudsfile',$cconf_file);
 				file_put_contents($cconf, $cconf_file, LOCK_EX);
 				}
-			
 			#clamd conf file
-			$cconf="/usr/local/etc/clamd.conf";
+			$cconf=DANSGUARDIAN_DIR."/etc/clamd.conf";
 			$cconf_file=file_get_contents($cconf);
 			if (preg_match("/User (\w+)/",$cconf_file,$matches)){
 				#clamd script file
 				$script='/usr/local/etc/rc.d/clamav-clamd';
 				$script_file=file($script);
+				$new_clamav_startup="";
+				$cpreg_m[0]="@NO@";
+				$cpreg_m[1]="@/usr/local@";
+				$cpreg_r[0]="YES";
+				$cpreg_r[1]=DANSGUARDIAN_DIR;
 				foreach ($script_file as $script_line){
 					if(preg_match("/command=/",$script_line)){
 						$new_clamav_startup.= 'if [ ! -d /var/run/clamav ];then /bin/mkdir /var/run/clamav;fi'."\n";
+						$new_clamav_startup.= 'if [ ! -d /var/db/clamav ];then /bin/mkdir /var/db/clamav;fi'."\n";
+						$new_clamav_startup.= 'if [ ! -d /var/log/clamav ];then /bin/mkdir -p /var/log/clamav;fi'."\n";
 						$new_clamav_startup.= "chown -R ".$matches[1]." /var/run/clamav\n";
+						$new_clamav_startup.= "chown -R ".$matches[1]." /var/db/clamav\n";
 						$new_clamav_startup.= "chown -R ".$matches[1]." /var/log/clamav\n";
 						$new_clamav_startup.=$script_line;
 						}
 					elseif(!preg_match("/(mkdir|chown|sleep|mailscanner)/",$script_line)) {
-						$new_clamav_startup.=preg_replace("/NO/","YES",$script_line);
+						$new_clamav_startup.=preg_replace($cpreg_m,$cpreg_r,$script_line);
 						}
 					}
 				file_put_contents($script, $new_clamav_startup, LOCK_EX);
 				chmod ($script,0755);
+				
 				if (file_exists('/var/run/dansguardian.pid') && is_process_running('clamd')){
 					log_error('Stopping clamav-clamd');
 					mwexec("$script stop");
@@ -1088,15 +1176,14 @@ EOF;
 					mwexec_bg("$script start");
 				}
 			}	
-	}
-
+	}	
 	#check certificate hashed
 	
 	$script='/usr/local/etc/rc.d/dansguardian.sh';
 	unlink_if_exists('/usr/local/etc/rc.d/dansguardian');
 	if($config['installedpackages']['dansguardian']['config'][0]['enable']=="on"){
-		copy('/usr/local/pkg/dansguardian_rc.template',$script);
-		chmod ($script,0755);
+		@copy('/usr/local/pkg/dansguardian_rc.template',$script);
+		@chmod ($script,0755);
 		if (is_process_running('dansguardian')){
 			log_error('Reloading Dansguardian');
 			exec("/usr/local/sbin/dansguardian -r");
@@ -1110,13 +1197,12 @@ EOF;
 		if (is_process_running('dansguardian')){
 			log_error('Dansguardian is disabled, stopping process...');
 			mwexec("$script stop");
-			}
-		if (file_exists($script))
-			chmod ($script,444);	
+		}
+		@unlink($script);
 	}
 	
-	if (!file_exists('/usr/local/etc/dansguardian/lists/phraselists/pornography/weighted_russian_utf8'))
-		file_put_contents('/usr/local/etc/dansguardian/lists/phraselists/pornography/weighted_russian_utf8',"",LOCK_EX);
+	if (!file_exists(DANSGUARDIAN_DIR . '/etc/dansguardian/lists/phraselists/pornography/weighted_russian_utf8'))
+		@file_put_contents(DANSGUARDIAN_DIR . '/etc/dansguardian/lists/phraselists/pornography/weighted_russian_utf8',"",LOCK_EX);
 	
 	#check ca certs hashes	
 	check_ca_hashes();
@@ -1124,23 +1210,58 @@ EOF;
 	#mount read only
     conf_mount_ro();
     
+    
     #avoid sync during boot process
-	if (!isset($boot_process)){
-	    $synconchanges = $config['installedpackages']['dansguardiansync']['config'][0]['synconchanges'];
-		if(!$synconchanges && !$syncondbchanges) 
-			return;
-		log_error("[dansguardian] dansguardian_xmlrpc_sync.php is starting.");
-		foreach ($config['installedpackages']['dansguardiansync']['config'] as $rs ){
-			foreach($rs['row'] as $sh){
-				$sync_to_ip = $sh['ipaddress'];
-				$password   = $sh['password'];
-				$sync_type = $sh['sync_type'];
-				if($password && $sync_to_ip)
-					dansguardian_do_xmlrpc_sync($sync_to_ip, $password,$sync_type);
-				}
-			}
-		log_error("[dansguardian] dansguardian_xmlrpc_sync.php is ending.");
+	if (!isset($boot_process) || $via_rpc=="yes"){
+	  /* Uses XMLRPC to synchronize the changes to a remote node */
+	  if (is_array($config['installedpackages']['dansguardiansync']['config'])){
+		$dans_sync=$config['installedpackages']['dansguardiansync']['config'][0];
+		$synconchanges = $dans_sync['synconchanges'];
+		$synctimeout = $dans_sync['synctimeout'];
+		switch ($synconchanges){
+			case "manual":
+				if (is_array($dans_sync[row])){
+					$rs=$dans_sync[row];
+					}
+				else{
+					log_error("[Dansguardian] xmlrpc sync is enabled but there is no hosts to push on dansguardian config.");
+					return;
+					}
+				break;
+			case "auto":
+					if (is_array($config['installedpackages']['carpsettings']) && is_array($config['installedpackages']['carpsettings']['config'])){
+						$system_carp=$config['installedpackages']['carpsettings']['config'][0];
+						$rs[0]['ipaddress']=$system_carp['synchronizetoip'];
+						$rs[0]['username']=$system_carp['username'];
+						$rs[0]['password']=$system_carp['password'];
+						if (! is_ipaddr($system_carp['synchronizetoip'])){
+							log_error("[Dansguardian] xmlrpc sync is enabled but there is no system backup hosts to push squid config.");
+							return;
+							}
+					}
+					else{
+						log_error("[Dansguardian] xmlrpc sync is enabled but there is no system backup hosts to push squid config.");
+						return;
+					}
+				break;		
+			default:
+				return;
+			break;
 		}
+		if (is_array($rs)){
+			log_error("[Dansguardian] xmlrpc sync is starting.");
+			foreach($rs as $sh){
+				$sync_to_ip = $sh['ipaddress'];
+				$password = $sh['password'];
+				$username = ($sh['username']?$sh['username']:"admin");
+				if($password && $sync_to_ip)
+					dansguardian_do_xmlrpc_sync($sync_to_ip,$username,$password,$sync_type,$synctimeout);
+				}
+			log_error("[Dansguardian] xmlrpc sync is ending.");
+			}
+ 		}
+    }
+    
 }
 
 function dansguardian_validate_input($post, &$input_errors) {
@@ -1151,15 +1272,22 @@ function dansguardian_validate_input($post, &$input_errors) {
 				$input_errors[] = "{$value} cannot be used as name.";
 		else if ($key == "name" && preg_match("/\W/",$value)) 
 				$input_errors[] = "{$value} cannot be used as name. Use only a-z 0-9 characters";
+		else if ($key== "group_options"){
+			$acls=array("pics","phrase","site","url","extension","header","content","search");
+			foreach ($acls as $gacl)
+				if (!array_key_exists($gacl."acl",$post))
+					$input_errors[] = ucfirst($gacl)." must has at least one acl assigned."; 
+		}
 		else if (empty($value))
 				continue;
 		else if($key == "freq" && (!preg_match("/^\d+(h|m|d)$/",$value) || $value == 0))
 				$input_errors[] = "A valid number with a time reference is required for the field 'Update Frequency'";
 	}
+
 }
 
 function dansguardian_php_install_command() {
-		sync_package_dansguardian();
+		sync_package_dansguardian("no",true);
 }
 
 function dansguardian_php_deinstall_command() {
@@ -1172,19 +1300,25 @@ function dansguardian_php_deinstall_command() {
 	
 	if (file_exists("/usr/local/etc/rc.d/dansguardian.sh")){
 		conf_mount_rw();
-		chmod ("/usr/local/etc/rc.d/dansguardian.sh",0444);
+		@unlink("/usr/local/etc/rc.d/dansguardian.sh");
 		conf_mount_ro();
 	}
 }
 
-function dansguardian_do_xmlrpc_sync($sync_to_ip, $password,$sync_type) {
+function dansguardian_do_xmlrpc_sync($sync_to_ip,$username,$password,$sync_type,$synctimeout) {
 	global $config, $g;
 
+	if(!$username)
+		return;
+	
 	if(!$password)
 		return;
 
 	if(!$sync_to_ip)
 		return;
+
+	if(!$synctimeout)
+		$synctimeout=30;
 
 	$xmlrpc_sync_neighbor = $sync_to_ip;
     if($config['system']['webgui']['protocol'] != "") {
@@ -1203,28 +1337,26 @@ function dansguardian_do_xmlrpc_sync($sync_to_ip, $password,$sync_type) {
 
 	/* xml will hold the sections to sync */
 	$xml = array();
-	$sync_xml=$config['installedpackages']['dansguardiansync']['config'][0]['synconchanges'];
-	if ($sync_xml){
-		log_error("Include dansguardian config");
-		$xml['dansguardian'] = $config['installedpackages']['dansguardian'];
-		$xml['dansguardianantivirusacl'] = $config['installedpackages']['dansguardianantivirusacl'];
-		$xml['dansguardianconfig'] = $config['installedpackages']['dansguardianconfig'];
-		$xml['dansguardianblacklist'] = $config['installedpackages']['dansguardianblacklist'];
-		$xml['dansguardianldap'] = $config['installedpackages']['dansguardianldap'];
-		$xml['dansguardiancontentacl'] = $config['installedpackages']['dansguardiancontentacl'];
-		$xml['dansguardianfileacl'] = $config['installedpackages']['dansguardianfileacl'];
-		$xml['dansguardiangroups'] = $config['installedpackages']['dansguardiangroups'];
-		$xml['dansguardianheaderacl'] = $config['installedpackages']['dansguardianheaderacl'];
-		$xml['dansguardianlimits'] = $config['installedpackages']['dansguardianlimits'];
-		$xml['dansguardianlog'] = $config['installedpackages']['dansguardianlog'];
-		$xml['dansguardianphraseacl'] = $config['installedpackages']['dansguardianphraseacl'];
-		$xml['dansguardianpicsacl'] = $config['installedpackages']['dansguardianpicsacl'];
-		$xml['dansguardiansearchacl'] = $config['installedpackages']['dansguardiansearchacl'];
-		$xml['dansguardiansiteacl'] = $config['installedpackages']['dansguardiansiteacl'];
-		$xml['dansguardianurlacl'] = $config['installedpackages']['dansguardianurlacl'];
-		$xml['dansguardianusers'] = $config['installedpackages']['dansguardianusers'];
+	log_error("Include dansguardian config");
+	$xml['dansguardian'] = $config['installedpackages']['dansguardian'];
+	$xml['dansguardianantivirusacl'] = $config['installedpackages']['dansguardianantivirusacl'];
+	$xml['dansguardianconfig'] = $config['installedpackages']['dansguardianconfig'];
+	$xml['dansguardianblacklist'] = $config['installedpackages']['dansguardianblacklist'];
+	$xml['dansguardianldap'] = $config['installedpackages']['dansguardianldap'];
+	$xml['dansguardiancontentacl'] = $config['installedpackages']['dansguardiancontentacl'];
+	$xml['dansguardianfileacl'] = $config['installedpackages']['dansguardianfileacl'];
+	$xml['dansguardiangroups'] = $config['installedpackages']['dansguardiangroups'];
+	$xml['dansguardianheaderacl'] = $config['installedpackages']['dansguardianheaderacl'];
+	$xml['dansguardianlimits'] = $config['installedpackages']['dansguardianlimits'];
+	$xml['dansguardianlog'] = $config['installedpackages']['dansguardianlog'];
+	$xml['dansguardianphraseacl'] = $config['installedpackages']['dansguardianphraseacl'];
+	$xml['dansguardianpicsacl'] = $config['installedpackages']['dansguardianpicsacl'];
+	$xml['dansguardiansearchacl'] = $config['installedpackages']['dansguardiansearchacl'];
+	$xml['dansguardiansiteacl'] = $config['installedpackages']['dansguardiansiteacl'];
+	$xml['dansguardianurlacl'] = $config['installedpackages']['dansguardianurlacl'];
+	$xml['dansguardianusers'] = $config['installedpackages']['dansguardianusers'];
+	$xml['dansguardianips'] = $config['installedpackages']['dansguardianips'];
 		
-	}
 	if (count($xml) > 0){
 		/* assemble xmlrpc payload */
 		$params = array(
@@ -1238,18 +1370,18 @@ function dansguardian_do_xmlrpc_sync($sync_to_ip, $password,$sync_type) {
 		$method = 'pfsense.merge_installedpackages_section_xmlrpc';
 		$msg = new XML_RPC_Message($method, $params);
 		$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
-		$cli->setCredentials('admin', $password);
+		$cli->setCredentials($username, $password);
 		if($g['debug'])
 			$cli->setDebug(1);
-		/* send our XMLRPC message and timeout after 250 seconds */
-		$resp = $cli->send($msg, "250");
+		/* send our XMLRPC message and timeout after $synctimeout seconds */
+		$resp = $cli->send($msg, $synctimeout);
 		if(!$resp) {
 			$error = "A communications error occurred while attempting dansguardian XMLRPC sync with {$url}:{$port}.";
 			log_error($error);
 			file_notice("sync_settings", $error, "dansguardian Settings Sync", "");
 		} elseif($resp->faultCode()) {
 			$cli->setDebug(1);
-			$resp = $cli->send($msg, "250");
+			$resp = $cli->send($msg, $synctimeout);
 			$error = "An error code was received while attempting dansguardian XMLRPC sync with {$url}:{$port} - Code " . $resp->faultCode() . ": " . $resp->faultString();
 			log_error($error);
 			file_notice("sync_settings", $error, "dansguardian Settings Sync", "");
@@ -1260,7 +1392,7 @@ function dansguardian_do_xmlrpc_sync($sync_to_ip, $password,$sync_type) {
 		/* tell dansguardian to reload our settings on the destionation sync host. */
 		$method = 'pfsense.exec_php';
 		$execcmd  = "require_once('/usr/local/pkg/dansguardian.inc');\n";
-		$execcmd .= "sync_package_dansguardian();";
+		$execcmd .= "sync_package_dansguardian('yes');";
 		
 		/* assemble xmlrpc payload */
 		$params = array(
@@ -1271,15 +1403,15 @@ function dansguardian_do_xmlrpc_sync($sync_to_ip, $password,$sync_type) {
 		log_error("dansguardian XMLRPC reload data {$url}:{$port}.");
 		$msg = new XML_RPC_Message($method, $params);
 		$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
-		$cli->setCredentials('admin', $password);
-		$resp = $cli->send($msg, "250");
+		$cli->setCredentials($username, $password);
+		$resp = $cli->send($msg, $synctimeout);
 		if(!$resp) {
 			$error = "A communications error occurred while attempting dansguardian XMLRPC sync with {$url}:{$port} (pfsense.exec_php).";
 			log_error($error);
 			file_notice("sync_settings", $error, "dansguardian Settings Sync", "");
 		} elseif($resp->faultCode()) {
 			$cli->setDebug(1);
-			$resp = $cli->send($msg, "250");
+			$resp = $cli->send($msg, $synctimeout);
 			$error = "An error code was received while attempting dansguardian XMLRPC sync with {$url}:{$port} - Code " . $resp->faultCode() . ": " . $resp->faultString();
 			log_error($error);
 			file_notice("sync_settings", $error, "dansguardian Settings Sync", "");

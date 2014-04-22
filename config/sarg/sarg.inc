@@ -4,7 +4,7 @@
 	sarg.inc
     part of pfSense (http://www.pfSense.com)
 	Copyright (C) 2007 Joao Henrique F. Freitas
-    Copyright (C) 2012 Marcello Coutinho
+    Copyright (C) 2012-2013 Marcello Coutinho
     All rights reserved.
                                                                               */
 /* ========================================================================== */
@@ -31,17 +31,42 @@
     POSSIBILITY OF SUCH DAMAGE.
                                                                               */
 /* ========================================================================== */
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version > 2.0){
 
+	// Function to get squidGuard directory
+	// each squidGuard version has a different directory
+	function getsqGuardDir() {
+		foreach (glob("/usr/pbi/*",GLOB_ONLYDIR) as $dirname) {
+			if (preg_match("/squidguard-/i", $dirname)) {
+				return trim($dirname);
+				break;
+			}
+		}
+	}
+
+        define('SARG_DIR', '/usr/pbi/sarg-' . php_uname("m"));
+        define('SQGARD_DIR', getsqGuardDir());
+        define('SQUID_DIR', '/usr/pbi/squid-' . php_uname("m"));
+        define('DANSG_DIR', '/usr/pbi/dansguardian-' . php_uname("m"));
+	}
+else{
+  define('SARG_DIR', '/usr/local');
+  define('SQGARD_DIR', '/usr/local');
+  define('SQUID_DIR', '/usr/local');
+  define('DANSG_DIR', '/usr/local');
+}
+  
 $uname=posix_uname();
 if ($uname['machine']=='amd64')
         ini_set('memory_limit', '250M');
 
 // STATIC VARS
-$sarg_proxy=array(	'squid_rc'=>'/usr/local/etc/rc.d/squid.sh',
-					'squid_config'=>'/var/squid/logs/access.log',
-					'squidguard_config'=>'/usr/local/etc/squidGuard/squidGuard.conf',
+$sarg_proxy=array(	'squid_rc'=> SQUID_DIR . '/etc/rc.d/squid.sh',
+					'squid_config'=> '/var/squid/logs/access.log',
+					'squidguard_config'=> SQGARD_DIR . '/etc/squidGuard/squidGuard.conf',
 					'squidguard_block_log'=>'/var/squidGuard/log/block.log',
-					'dansguardian_config'=>'/usr/local/etc/dansguardian/dansguardian.conf',
+					'dansguardian_config'=> DANSG_DIR . '/etc/dansguardian/dansguardian.conf',
 					'dansguardian_log'=>'/var/log/dansguardian/access.log');
 
 // END STATIC VARS
@@ -60,7 +85,7 @@ function sarg_resync() {
         global $config;
         if (($_POST['Submit'] == 'Save') || !isset($_POST['Submit']))
         	sync_package_sarg();
-        if ($_POST['Submit'] == 'Force udpate now')
+        if ($_POST['Submit'] == 'Force update now')
         	run_sarg();
 
 }
@@ -84,18 +109,52 @@ function run_sarg($id=-1) {
 	global $config, $g,$sarg_proxy;
 	#mount filesystem writeable
 	conf_mount_rw();
-	$cmd = "/usr/local/bin/sarg";
+	$cmd =  SARG_DIR . "/bin/sarg";
 	if ($id >= 0 && is_array($config['installedpackages']['sargschedule']['config'])){
 		$args=$config['installedpackages']['sargschedule']['config'][$id]['args'];
 		$action=$config['installedpackages']['sargschedule']['config'][$id]['action'];
+		$gzip=$config['installedpackages']['sargschedule']['config'][$id]['gzip'];
+		$find=$config['installedpackages']['sargschedule']['config'][$id]['find'];
+		$gziplevel=$config['installedpackages']['sargschedule']['config'][$id]['gziplevel'];
+		$daylimit=$config['installedpackages']['sargschedule']['config'][$id]['daylimit'];
 		}
 	else{
 		$args=$_POST['args'];
 		$action=$_POST['action'];
+		$gzip=$_POST['gzip'];
+		$find=$_POST['find'];
+		$gziplevel=$_POST['gziplevel'];
+		$daylimit="";
 		}
-	log_error("Sarg: force refresh now with '".$args."' args and ".$action." action after sarg finish.");
+	$find=(preg_match("/(\d+)/",$find,$find_matches) ? $find_matches[1] : "60");
+	log_error("Sarg: force refresh now with {$args} args, compress({$gzip}) and {$action} action after sarg finish.");
+	$gzip_script="#!/bin/sh\n";
+	if ($gzip=="on"){
+		#remove old file if exists
+		unlink_if_exists("/root/sarg_run_{$id}.sh");
+		$gzip_script.=<<<EOF
+for a in `/usr/bin/find /usr/local/sarg-reports -cmin -{$find} -type d -mindepth 1 -maxdepth 1`
+do
+echo \$a
+/usr/bin/find \$a -name "*html" | xargs gzip {$gziplevel}
+done
+		
+EOF;
 
-	mwexec($cmd. " ".$args);
+		}
+	if (preg_match("/(\d+)/",$daylimit,$day_matches)){
+		$gzip_script.=<<<EOF
+for a in `/usr/bin/find /usr/local/sarg-reports -ctime +{$find} -type d -mindepth 1 -maxdepth 1`
+do
+echo \$a
+rm -rf \$a
+done
+		
+EOF;
+	}
+	#create a new file to speedup find search
+	file_put_contents("/root/sarg_run_{$id}.sh",$gzip_script,LOCK_EX);
+	mwexec("export LC_ALL=C && " .$cmd. " ".$args);
 	#check if there is a script to run after file save
 	if (is_array($config['installedpackages']['sarg']))
 		switch ($config['installedpackages']['sarg']['config'][0]['proxy_server']){
@@ -106,13 +165,13 @@ function run_sarg($id=-1) {
 					file_put_contents($sarg_proxy['squidguard_block_log'],"",LOCK_EX);
 					chown($sarg_proxy['squidguard_block_log'],'proxy');
 					chgrp($sarg_proxy['squidguard_block_log'],'proxy');
-					mwexec('/usr/local/sbin/squid -k reconfigure');
+					mwexec(SQUID_DIR . '/sbin/squid -k reconfigure');
 					}
 			#leave this case without break to run squid rotate too.
 			case "squid":
 				if ($action =="both" || $action=="rotate"){
 					log_error('executing squid log rotate after sarg.');
-					mwexec('/usr/local/sbin/squid -k rotate');
+					mwexec(SQUID_DIR . '/sbin/squid -k rotate');
 					}
 				if ($action =="both" || $action=="restart"){
 					if (file_exists($sarg_proxy['squid_rc']))
@@ -127,6 +186,10 @@ function run_sarg($id=-1) {
 					}
 			break;
 		}
+	#check compress option
+	if ($gzip=="on")
+		mwexec_bg("/bin/sh /root/sarg_run_{$id}.sh");
+		
 	#mount filesystem readonly
 	conf_mount_ro();
 }
@@ -197,7 +260,7 @@ function sync_package_sarg() {
 	$anonymous_output_files=(preg_match('/anonymous_output_files/',$sarg['report_options'])?"yes":"no");
 	$resolve_ip=(preg_match('/resolve_ip/',$sarg['report_options'])?"yes":"no");
 	$user_ip=(preg_match('/user_ip/',$sarg['report_options'])?"yes":"no");
-	$sort_order=(preg_match('/user_sort_field_order/',$sarg['report_options'])?"REVERSE":"NORMAL");
+	$sort_order=(preg_match('/user_sort_field_order/',$sarg['report_options'])?"reverse":"normal");
 	$remove_temp_files=(preg_match('/remove_temp_files/',$sarg['report_options'])?"yes":"no");
 	$main_index=(preg_match('/main_index/',$sarg['report_options'])?"yes":"no");
 	$index_tree=(preg_match('/index_tree/',$sarg['report_options'])?"file":"date");
@@ -209,7 +272,9 @@ function sync_package_sarg() {
 	$bytes_in_sites_users_report=(preg_match('/bytes_in_sites_users_report/',$sarg['report_options'])?"yes":"no");
 	$date_time_by=(preg_match('/date_time_by_bytes/',$sarg['report_options'])?"bytes":"");
 	$date_time_by.=(preg_match('/date_time_by_elap/',$sarg['report_options'])?" elap":"");
-	$date_format=(empty($sarg['report_date_format'])?"u":$sarg['report_date_format']);
+	if(empty($date_time_by))
+		$date_time_by="bytes";
+	$date_format=(preg_match("/\w/",$sarg['report_date_format'])?$sarg['report_date_format']:"u");
 	$report_type=preg_replace('/,/',' ',$sarg['report_type']);
 	$report_charset=(empty($sarg['report_charset'])?"UTF-8":$sarg['report_charset']);
 	$exclude_string=(empty($sarg['exclude_string'])?"":'exclude_string "'.$sarg['exclude_string'].'"');
@@ -236,10 +301,11 @@ function sync_package_sarg() {
 		$usertab="none";
 		}
 	else{
-		$usertab="/usr/local/etc/sarg/usertab.conf";
-		file_put_contents('/usr/local/etc/sarg/usertab.conf', sarg_text_area_decode($sarguser['usertab']),LOCK_EX);
+		$usertab=  SARG_DIR . "/etc/sarg/usertab.conf";
+		file_put_contents( SARG_DIR . '/etc/sarg/usertab.conf', sarg_text_area_decode($sarguser['usertab']),LOCK_EX);
 		}
 	if($sarguser['ldap_enable']){
+		$usertab="ldap";
 		$LDAPHost=(empty($sarguser['ldap_host'])?"":"LDAPHost ".$sarguser['ldap_host']);
 		$LDAPort=(empty($sarguser['ldap_port'])?"":"LDAPPort ".$sarguser['ldap_port']);
 		$LDAPBindDN=(empty($sarguser['ldap_bind_dn'])?"":"LDAPBindDN ".$sarguser['ldap_bind_dn']);
@@ -263,7 +329,7 @@ function sync_package_sarg() {
 	#images
 	$simages=array("datetime.png","graph.png","sarg-squidguard-block.png","sarg.png");
 	$simgdir1="/usr/local/www/sarg-images";
-	$simgdir2="/usr/local/etc/sarg/images";
+	$simgdir2= SARG_DIR . "/etc/sarg/images";
 	foreach ($simages as $simage){
 		if (!file_exists("{$simgdir1}/{$simage}"))
 			copy("{$simgdir2}/{$simage}","{$simgdir1}/{$simage}");
@@ -271,13 +337,13 @@ function sync_package_sarg() {
 			
 	//log_error($_POST['__csrf_magic']." sarg log:". $access_log);
 	#create sarg config files
+	$sarg_dir= SARG_DIR;
 	include("/usr/local/pkg/sarg.template");
-	file_put_contents("/usr/local/etc/sarg/sarg.conf", $sg, LOCK_EX);
-	file_put_contents('/usr/local/etc/sarg/exclude_hosts.conf', sarg_text_area_decode($sarg['exclude_hostlist']),LOCK_EX);
-	file_put_contents('/usr/local/etc/sarg/exclude_codes', sarg_text_area_decode($sarg['exclude_codelist']),LOCK_EX);
-	file_put_contents('/usr/local/etc/sarg/hostalias',sarg_text_area_decode($sarg['hostalias']),LOCK_EX);
-	file_put_contents('/usr/local/etc/sarg/exclude_users.conf', sarg_text_area_decode($sarguser['exclude_userlist']),LOCK_EX);
-	
+	file_put_contents( SARG_DIR . "/etc/sarg/sarg.conf", $sg, LOCK_EX);
+	file_put_contents( SARG_DIR . '/etc/sarg/exclude_hosts.conf', sarg_text_area_decode($sarg['exclude_hostlist']),LOCK_EX);
+	file_put_contents( SARG_DIR . '/etc/sarg/exclude_codes', sarg_text_area_decode($sarg['exclude_codelist']),LOCK_EX);
+	file_put_contents( SARG_DIR . '/etc/sarg/hostalias',sarg_text_area_decode($sarg['hostalias']),LOCK_EX);
+	file_put_contents( SARG_DIR . '/etc/sarg/exclude_users.conf', sarg_text_area_decode($sarguser['exclude_userlist']),LOCK_EX);
 	#check cron_tab
 	$new_cron=array();
 	$cron_found=0;
@@ -385,31 +451,63 @@ function sarg_validate_input($post, &$input_errors) {
 	}
 }
 
-
 /* Uses XMLRPC to synchronize the changes to a remote node */
 function sarg_sync_on_changes() {
 	global $config, $g;
-	
-	log_error("[sarg] sarg_xmlrpc_sync.php is starting.");
-	$synconchanges = $config['installedpackages']['sargsync']['config'][0]['synconchanges'];	
-	if(!$synconchanges) 
-		return;
-	foreach ($config['installedpackages']['sargsync']['config'] as $rs ){
-		foreach($rs['row'] as $sh){
-			$sync_to_ip = $sh['ipaddress'];
-			$password = $sh['password'];
-			if($sh['username'])
-				$username = $sh['username'];
-			else
-				$username = 'admin';
-			if($password && $sync_to_ip)
-				sarg_do_xmlrpc_sync($sync_to_ip, $username, $password);
+	if (is_array($config['installedpackages']['sargsync']['config'])){
+		$sarg_sync=$config['installedpackages']['sargsync']['config'][0];
+		$synconchanges = $sarg_sync['synconchanges'];
+		$synctimeout = $sarg_sync['synctimeout'];
+		switch ($synconchanges){
+			case "manual":
+				if (is_array($sarg_sync[row])){
+					$rs=$sarg_sync[row];
+					}
+				else{
+					log_error("[sarg] xmlrpc sync is enabled but there is no hosts to push on sarg config.");
+					return;
+					}
+				break;
+			case "auto":
+					if (is_array($config['installedpackages']['carpsettings']) && is_array($config['installedpackages']['carpsettings']['config'])){
+						$system_carp=$config['installedpackages']['carpsettings']['config'][0];
+						$rs[0]['ipaddress']=$system_carp['synchronizetoip'];
+						$rs[0]['username']=$system_carp['username'];
+						$rs[0]['password']=$system_carp['password'];
+						if ($system_carp['synchronizetoip'] =="" || $system_carp['username']==""){
+							log_error("[sarg] xmlrpc sync is enabled but there is no system backup hosts to push sarg config.");
+							return;
+						}
+						
+					}
+					else{
+						log_error("[sarg] xmlrpc sync is enabled but there is no system backup hosts to push sarg config.");
+						return;
+					}
+				break;			
+			default:
+				return;
+			break;
+		}
+		if (is_array($rs)){
+			log_error("[sarg] xmlrpc sync is starting.");
+			foreach($rs as $sh){
+				$sync_to_ip = $sh['ipaddress'];
+				$password = $sh['password'];
+				if($sh['username'])
+					$username = $sh['username'];
+				else
+					$username = 'admin';
+				if($password && $sync_to_ip)
+					sarg_do_xmlrpc_sync($sync_to_ip, $username, $password,$synctimeout);
+				}
+			log_error("[sarg] xmlrpc sync is ending.");
 			}
-	}
-	log_error("[sarg] sarg_xmlrpc_sync.php is ending.");
+ 		}
 }
+
 /* Do the actual XMLRPC sync */
-function sarg_do_xmlrpc_sync($sync_to_ip, $username, $password) {
+function sarg_do_xmlrpc_sync($sync_to_ip, $username, $password,$synctimeout) {
 	global $config, $g;
 
 	if(!$username)
@@ -420,7 +518,10 @@ function sarg_do_xmlrpc_sync($sync_to_ip, $username, $password) {
 
 	if(!$sync_to_ip)
 		return;
-
+		
+	if(!$synctimeout)
+		$synctimeout="150";
+		
 	$xmlrpc_sync_neighbor = $sync_to_ip;
     if($config['system']['webgui']['protocol'] != "") {
 		$synchronizetoip = $config['system']['webgui']['protocol'];
@@ -455,15 +556,15 @@ function sarg_do_xmlrpc_sync($sync_to_ip, $username, $password) {
 	$cli->setCredentials($username, $password);
 	if($g['debug'])
 		$cli->setDebug(1);
-	/* send our XMLRPC message and timeout after 250 seconds */
-	$resp = $cli->send($msg, "250");
+	/* send our XMLRPC message and timeout after $synctimeout seconds */
+	$resp = $cli->send($msg, $synctimeout);
 	if(!$resp) {
 		$error = "A communications error occurred while attempting sarg XMLRPC sync with {$url}:{$port}.";
 		log_error($error);
 		file_notice("sync_settings", $error, "sarg Settings Sync", "");
 	} elseif($resp->faultCode()) {
 		$cli->setDebug(1);
-		$resp = $cli->send($msg, "250");
+		$resp = $cli->send($msg, $synctimeout);
 		$error = "An error code was received while attempting sarg XMLRPC sync with {$url}:{$port} - Code " . $resp->faultCode() . ": " . $resp->faultString();
 		log_error($error);
 		file_notice("sync_settings", $error, "sarg Settings Sync", "");
@@ -485,14 +586,14 @@ function sarg_do_xmlrpc_sync($sync_to_ip, $username, $password) {
 	$msg = new XML_RPC_Message($method, $params);
 	$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
 	$cli->setCredentials($username, $password);
-	$resp = $cli->send($msg, "250");
+	$resp = $cli->send($msg, $synctimeout);
 	if(!$resp) {
 		$error = "A communications error occurred while attempting sarg XMLRPC sync with {$url}:{$port} (pfsense.exec_php).";
 		log_error($error);
 		file_notice("sync_settings", $error, "sarg Settings Sync", "");
 	} elseif($resp->faultCode()) {
 		$cli->setDebug(1);
-		$resp = $cli->send($msg, "250");
+		$resp = $cli->send($msg, $synctimeout);
 		$error = "An error code was received while attempting sarg XMLRPC sync with {$url}:{$port} - Code " . $resp->faultCode() . ": " . $resp->faultString();
 		log_error($error);
 		file_notice("sync_settings", $error, "sarg Settings Sync", "");

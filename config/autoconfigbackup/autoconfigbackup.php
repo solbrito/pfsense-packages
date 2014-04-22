@@ -29,8 +29,8 @@
 
 require("guiconfig.inc");
 
-$pfSversion = str_replace("\n", "", file_get_contents("/etc/version"));
-if(strstr($pfSversion, "1.2")) 
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version < 2.0)
 	require("crypt_acb.php");
 
 // Seperator used during client / server communications
@@ -46,13 +46,13 @@ $username			= $config['installedpackages']['autoconfigbackup']['config'][0]['use
 $password			= $config['installedpackages']['autoconfigbackup']['config'][0]['password'];
 
 // URL to restore.php
-$get_url			= "https://{$username}:{$password}@portal.pfsense.org/pfSconfigbackups/restore.php";
+$get_url			= "https://portal.pfsense.org/pfSconfigbackups/restore.php";
 
 // URL to stats
-$stats_url			= "https://{$username}:{$password}@portal.pfsense.org/pfSconfigbackups/showstats.php";
+$stats_url			= "https://portal.pfsense.org/pfSconfigbackups/showstats.php";
 
 // URL to delete.php
-$del_url			= "https://{$username}:{$password}@portal.pfsense.org/pfSconfigbackups/delete.php";
+$del_url			= "https://portal.pfsense.org/pfSconfigbackups/delete.php";
 
 // Set hostname
 if($_REQUEST['hostname'])
@@ -79,10 +79,11 @@ else
 include("head.inc");
 
 function get_hostnames() {
-	global $stats_url, $username, $oper_sep;
+	global $stats_url, $username, $password, $oper_sep;
 	// Populate available backups
 	$curl_session = curl_init();
 	curl_setopt($curl_session, CURLOPT_URL, $stats_url);  
+	curl_setopt($curl_session, CURLOPT_HTTPHEADER, array("Authorization: Basic " . base64_encode("{$username}:{$password}")));
 	curl_setopt($curl_session, CURLOPT_SSL_VERIFYPEER, 0);	
 	curl_setopt($curl_session, CURLOPT_POST, 1);
 	curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, 1);
@@ -114,7 +115,7 @@ function get_hostnames() {
 <script src="/javascript/scriptaculous/prototype.js" type="text/javascript"></script>
 <?php
 	include("fbegin.inc"); 
-	if(strstr($pfSversion, "1.2")) 
+	if ($pf_version < 2.0)
 		echo "<p class=\"pgtitle\">{$pgtitle}</p>";
 	if($savemsg) {
 		echo "<div id='savemsg'>";
@@ -157,6 +158,7 @@ function get_hostnames() {
 				if($_REQUEST['rmver'] != "") {
 					$curl_session = curl_init();
 					curl_setopt($curl_session, CURLOPT_URL, $del_url);
+					curl_setopt($curl_session, CURLOPT_HTTPHEADER, array("Authorization: Basic " . base64_encode("{$username}:{$password}")));
 					curl_setopt($curl_session, CURLOPT_POST, 3);				
 					curl_setopt($curl_session, CURLOPT_SSL_VERIFYPEER, 0);	
 					curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, 1);	
@@ -183,6 +185,7 @@ function get_hostnames() {
 					// Phone home and obtain backups
 					$curl_session = curl_init();
 					curl_setopt($curl_session, CURLOPT_URL, $get_url);
+					curl_setopt($curl_session, CURLOPT_HTTPHEADER, array("Authorization: Basic " . base64_encode("{$username}:{$password}")));
 					curl_setopt($curl_session, CURLOPT_POST, 3);				
 					curl_setopt($curl_session, CURLOPT_SSL_VERIFYPEER, 0);	
 					curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, 1);	
@@ -191,7 +194,7 @@ function get_hostnames() {
 						"&revision=" . urlencode($_REQUEST['newver']));
 					$data = curl_exec($curl_session);
 					$data_split = split("\+\+\+\+", $data);
-					$sha256 = $data_split[0];	// sha256
+					$sha256 = trim($data_split[0]);	// sha256
 					$data = $data_split[1];
 					if (!tagfile_deformat($data, $data, "config.xml")) 
 						$input_errors[] = "The downloaded file does not appear to contain an encrypted pfSense configuration.";
@@ -246,6 +249,7 @@ EOF;
 					// Phone home and obtain backups
 					$curl_session = curl_init();
 					curl_setopt($curl_session, CURLOPT_URL, $get_url);
+					curl_setopt($curl_session, CURLOPT_HTTPHEADER, array("Authorization: Basic " . base64_encode("{$username}:{$password}")));
 					curl_setopt($curl_session, CURLOPT_POST, 3);				
 					curl_setopt($curl_session, CURLOPT_SSL_VERIFYPEER, 0);	
 					curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, 1);	
@@ -297,6 +301,7 @@ EOF;
 				// Populate available backups
 				$curl_session = curl_init();
 				curl_setopt($curl_session, CURLOPT_URL, $get_url);  
+				curl_setopt($curl_session, CURLOPT_HTTPHEADER, array("Authorization: Basic " . base64_encode("{$username}:{$password}")));
 				curl_setopt($curl_session, CURLOPT_SSL_VERIFYPEER, 0);	
 				curl_setopt($curl_session, CURLOPT_POST, 1);
 				curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, 1);

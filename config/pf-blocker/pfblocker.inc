@@ -52,29 +52,6 @@ function cb_get_real_interface_address($iface) {
 	return array($ip, long2ip(hexdec($netmask)));
 }
 
-function pfblocker_Range2CIDR($ip_min, $ip_max) {
-	#function called without any args
-	if ($ip_min == "" || $ip_max == "")
-		return "";
-	#function called with same ip in min and max
-	if ($ip_min == $ip_max)
-		return $ip_min. "/32";
-	#convert ip to decimal numbers
-	$ip_min_long=ip2long($ip_min);
-	$ip_max_long=ip2long($ip_max);
-	#check long results
-	if ($ip_min_long == -1 || $ip_max_long  == -1)
-		return "";
-	#identify bits mask
-	$bits=(32 -strlen(decbin($ip_max_long - $ip_min_long)));
-	if ($bits < 0)
-		return "";
-	#identify first ip on range network
-	$network=long2ip(bindec(substr(decbin($ip_min_long),0,$bits).preg_replace("/\d/","0",substr(decbin($ip_min_long),0,(32-$bits)))));
-	#print decbin($ip_min_long)."\n".$network."\n";
-	return $network . "/". (32 -strlen(decbin($ip_max_long - $ip_min_long)));
-}
-
 function sync_package_pfblocker($cron="") {
 	global $g,$config;
 	
@@ -190,15 +167,6 @@ function sync_package_pfblocker($cron="") {
 					#Create rule if action permits
 					switch($continent_config['action']){
 						case "Deny_Both":
-							$rule = $base_rule;
-							$rule["type"] = $deny_action_inbound;
-							$rule["descr"]= "$pfb_alias auto rule";
-							$rule["source"]= array("address"=> $pfb_alias);
-							$rule["destination"]=array("any"=>"");
-							if ($pfblocker_config['enable_log']){
-								$rule["log"]="";
-							}
-							$deny_inbound[]=$rule;					
 						case "Deny_Outbound":
 							$rule = $base_rule;
 							$rule["type"] = $deny_action_outbound;
@@ -208,8 +176,9 @@ function sync_package_pfblocker($cron="") {
 							if ($pfblocker_config['enable_log']){
 								$rule["log"]="";
 							}
-							$deny_outbound[]=$rule;					
-							break;
+							$deny_outbound[]=$rule;
+							if ($continent_config['action'] != "Deny_Both")
+								break;
 						case "Deny_Inbound":
 							$rule = $base_rule;
 							$rule["type"] = $deny_action_inbound;
@@ -221,6 +190,7 @@ function sync_package_pfblocker($cron="") {
 							}
 							$deny_inbound[]=$rule;					
 							break;
+						case "Permit_Both":
 						case "Permit_Outbound":
 							$rule = $base_rule;
 							$rule["type"] = "pass";
@@ -231,7 +201,8 @@ function sync_package_pfblocker($cron="") {
 								$rule["log"]="";
 							}
 							$permit_outbound[]=$rule;					
-							break;
+							if ($continent_config['action'] != "Permit_Both")
+								break;
 						case "Permit_Inbound":
 							$rule = $base_rule;
 							$rule["type"] = "pass";
@@ -288,23 +259,25 @@ function sync_package_pfblocker($cron="") {
 									$new_file="";
 									if (is_array($url_list)){
 										foreach ($url_list as $line){
+											# Network range 192.168.0.0-192.168.0.254
+											if (preg_match("/(\d+\.\d+\.\d+\.\d+)-(\d+\.\d+\.\d+\.\d+)/",$line,$matches)){
+												$a_cidr = ip_range_to_subnet_array($matches[1],$matches[2]);
+												if (is_array($a_cidr)) {
+													foreach ($a_cidr as $cidr) {
+														${$alias}.= $cidr."\n";
+														$new_file.= $cidr."\n";
+													}
+												}
+											}
 											# CIDR format 192.168.0.0/16
-											if (preg_match("/(\d+\.\d+\.\d+\.\d+\/\d+)/",$line,$matches)){
+											else if (preg_match("/(\d+\.\d+\.\d+\.\d+\/\d+)/",$line,$matches)){
 												${$alias}.= $matches[1]."\n";
 												$new_file.= $matches[1]."\n";
 											}
 											# Single ip addresses 
-											if (preg_match("/(\d+\.\d+\.\d+\.\d+)\s+/",$line,$matches)){
+											else if (preg_match("/(\d+\.\d+\.\d+\.\d+)\s+/",$line,$matches)){
 												${$alias}.= $matches[1]."/32\n";
 												$new_file.= $matches[1]."/32\n";
-											}
-											# Network range 192.168.0.0-192.168.0.254
-											if (preg_match("/(\d+\.\d+\.\d+\.\d+)-(\d+\.\d+\.\d+\.\d+)/",$line,$matches)){
-												$cidr= pfblocker_Range2CIDR($matches[1],$matches[2]);
-												if ($cidr != ""){
-													${$alias}.= $cidr."\n";
-													$new_file.= $cidr."\n";
-												}
 											}
 										}
 									}
@@ -338,15 +311,6 @@ function sync_package_pfblocker($cron="") {
 						#Create rule if action permits
 						switch($list['action']){
 							case "Deny_Both":
-								$rule = $base_rule;
-								$rule["type"] = $deny_action_inbound;
-								$rule["descr"]= "$alias auto rule";
-								$rule["source"]= array("address"=> $alias);
-								$rule["destination"]=array("any"=>"");
-								if ($pfblocker_config['enable_log']){
-									$rule["log"]="";
-								}
-								$deny_inbound[]=$rule;
 							case "Deny_Outbound":
 								$rule = $base_rule;
 								$rule["type"] = $deny_action_outbound;
@@ -356,8 +320,9 @@ function sync_package_pfblocker($cron="") {
 								if ($pfblocker_config['enable_log']){
 									$rule["log"]="";
 								}
-								$deny_outbound[]=$rule;					
-								break;
+								$deny_outbound[]=$rule;
+								if ($list['action'] != "Deny_Both")
+									break;
 							case "Deny_Inbound":
 								$rule = $base_rule;
 								$rule["type"] = $deny_action_inbound;
@@ -369,6 +334,7 @@ function sync_package_pfblocker($cron="") {
 								}
 								$deny_inbound[]=$rule;					
 								break;
+							case "Permit_Both":
 							case "Permit_Outbound":
 								$rule = $base_rule;
 								$rule["type"] = "pass";
@@ -379,7 +345,8 @@ function sync_package_pfblocker($cron="") {
 									$rule["log"]="";
 								}
 								$permit_outbound[]=$rule;					
-								break;
+								if ($list['action'] != "Permit_Both")
+									break;
 							case "Permit_Inbound":
 								$rule = $base_rule;
 								$rule["type"] = "pass";
@@ -468,23 +435,32 @@ function sync_package_pfblocker($cron="") {
 		}
 		
 		if ($message == ""){
-			$last_iface="";
 			$rules=$config['filter']['rule'];
 			$new_rules=array();
-			# The assumption is that the rules in the config come in groups by interface then priority.
-			# e.g. all rules for WAN (highest priority first), then for LAN then for OPT1 etc.
-			# Note that floating rules (interface is "") can appear mixed in the list.
+			$interfaces_processed=array();
+			# The rules in the config come in priority order, 
+			# but the interface to which each rule applies can be all mixed up in the list.
+			# e.g. some WAN rules, then some LAN rules, then some floating rules, then more
+			# LAN rules, some OPT1 rules, some more LAN rules and so on.
+			# So we have to allow for this, and only add pfBlocker rules the first time an 
+			# interface is found in the rules list.
 			foreach ($rules as $rule){
-				# If this next rule is for a non-blank interface, different to the previous interface,
+				# If this next rule is for a non-blank interface, different from any interface already processed,
 				# then add any needed pfblocker rules to the interface. This puts pfblocker rules at the
 				# top of the list for each interface, after any built-in rules (e.g. anti-lockout)
-				if (($rule['interface'] != "") && ($rule['interface'] <> $last_iface)){
-					$last_iface = $rule['interface'];
+				$found_new_interface = TRUE;
+				foreach ($interfaces_processed as $processed_interface){
+					if ($processed_interface == $rule['interface']){
+						$found_new_interface = FALSE;
+					}
+				}
+				if (($rule['interface'] != "") && ($found_new_interface)){
+					$interfaces_processed[] = $rule['interface'];
 					#apply pfblocker rules if enabled
 				
 					#Inbound
 					foreach ($inbound_interfaces as $inbound_interface){
-						if ($inbound_interface==$last_iface){
+						if ($inbound_interface==$rule['interface']){
 							#permit rules
 							if (is_array($permit_inbound)){
 								foreach ($permit_inbound as $cb_rules){
@@ -503,7 +479,7 @@ function sync_package_pfblocker($cron="") {
 					}
 					#Outbound
 					foreach ($outbound_interfaces as $outbound_interface){
-						if ($outbound_interface==$last_iface){
+						if ($outbound_interface==$rule['interface']){
 							#permit rules
 							if (is_array($permit_outbound)){
 								foreach ($permit_outbound as $cb_rules){

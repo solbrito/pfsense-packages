@@ -7,7 +7,7 @@
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>077</chmod>
-		<item>http://www.pfsense.com/packages/config/quagga_ospfd/quagga_ospfd.inc</item>
+		<item>https://packages.pfsense.org/packages/config/quagga_ospfd/quagga_ospfd.inc</item>
 	</additional_files_needed>
 	<menu>
 		<name>OSPF</name>
@@ -84,6 +84,12 @@
 			<fielddescr>Interface is Passive</fielddescr>
 			<fieldname>passive</fieldname>
 			<description>Prevent transmission and reception of OSPF packets on this interface.  The specified interface will be announced as a stub network.</description>
+			<type>checkbox</type>
+		</field>
+		<field>
+			<fielddescr>Accept Filter</fielddescr>
+			<fieldname>acceptfilter</fieldname>
+			<description>Do not add routes for this interface subnet from OSPF into the routing table. (Suggested for Multi-WAN environments).</description>
 			<type>checkbox</type>
 		</field>
 		<field>

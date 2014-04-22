@@ -74,32 +74,32 @@
         <additional_files_needed>
                <prefix>/usr/local/pkg/</prefix>
                <chmod>0755</chmod>
-               <item>http://www.pfsense.org/packages/config/lightsquid/lightsquid.inc</item>
+               <item>https://packages.pfsense.org/packages/config/lightsquid/lightsquid.inc</item>
         </additional_files_needed>
         <additional_files_needed>
                <prefix>/var/tmp/</prefix>
                <chmod>0755</chmod>
-               <item>http://files.pfsense.org/packages/All/lightsquid_tpl.tbz</item>
+               <item>https://files.pfsense.org/packages/All/lightsquid_tpl.tbz</item>
         </additional_files_needed>
         <additional_files_needed>
                <prefix>/usr/local/www/sqstat/</prefix>
                <chmod>0644</chmod>
-               <item>http://www.pfsense.org/packages/config/lightsquid/sqstat.class.php</item>
+               <item>https://packages.pfsense.org/packages/config/lightsquid/sqstat.class.php</item>
         </additional_files_needed>
         <additional_files_needed>
                <prefix>/usr/local/www/sqstat/</prefix>
                <chmod>0644</chmod>
-               <item>http://www.pfsense.org/packages/config/lightsquid/sqstat.php</item>
+               <item>https://packages.pfsense.org/packages/config/lightsquid/sqstat.php</item>
         </additional_files_needed>
         <additional_files_needed>
                <prefix>/usr/local/www/sqstat/</prefix>
                <chmod>0644</chmod>
-               <item>http://www.pfsense.org/packages/config/lightsquid/sqstat.css</item>
+               <item>https://packages.pfsense.org/packages/config/lightsquid/sqstat.css</item>
         </additional_files_needed>
         <additional_files_needed>
                <prefix>/usr/local/www/sqstat/</prefix>
                <chmod>0644</chmod>
-               <item>http://www.pfsense.org/packages/config/lightsquid/zhabascript.js</item>
+               <item>https://packages.pfsense.org/packages/config/lightsquid/zhabascript.js</item>
         </additional_files_needed>
         <fields>
                 <field>
@@ -186,7 +186,7 @@
 			&lt;input type=&quot;submit&quot; name=&quot;Submit&quot; value=&quot;Refresh full&quot;&gt;
 			&lt;br&gt; Press button for start background refresh (this take some time).
 			&lt;br&gt; &lt;span style=&quot;color: rgb(153, 51, 0);&quot;&gt; Note after installation:
-			&lt;br&gt; On the first - enable log in squid package with &quot;/var/squid/log&quot; path.
+			&lt;br&gt; On the first - enable log in squid package with &quot;/var/squid/logs&quot; path.
 			&lt;br&gt; On the second - press Refresh button for create lightsquid reports, else you will have error diagnostic page.&lt;/span&gt;
 			</description>
                         <type>select</type>

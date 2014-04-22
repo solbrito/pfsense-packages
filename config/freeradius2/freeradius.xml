@@ -9,7 +9,7 @@
 /*
 	freeradius.xml
 	part of pfSense (http://www.pfSense.com)
-	Copyright (C) 2011 - 2012 Alexander Wilke <nachtfalkeaw@web.de>
+	Copyright (C) 2013 Alexander Wilke <nachtfalkeaw@web.de>
 	All rights reserved.
 
 	Based on m0n0wall (http://m0n0.ch/wall)
@@ -45,7 +45,7 @@
 	<requirements>Describe your package requirements here</requirements>
 	<faq>Currently there are no FAQ items provided.</faq>
 	<name>freeradius</name>
-	<version>2.1.12</version>
+	<version>2.2.0</version>
 	<title>FreeRADIUS: Users</title>
 	<include_file>/usr/local/pkg/freeradius.inc</include_file>
 	<menu>
@@ -111,57 +111,57 @@
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradius.inc</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradius.inc</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/www/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradius_view_config.php</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradius_view_config.php</item>
 	</additional_files_needed>	
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiusclients.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiusclients.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiussettings.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiussettings.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiuseapconf.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiuseapconf.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiussqlconf.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiussqlconf.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiusinterfaces.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiusinterfaces.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiuscerts.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiuscerts.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiussync.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiussync.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiusmodulesldap.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiusmodulesldap.xml</item>
 	</additional_files_needed>
 	<additional_files_needed>
 		<prefix>/usr/local/pkg/</prefix>
 		<chmod>0755</chmod>
-		<item>http://www.pfsense.org/packages/config/freeradius2/freeradiusauthorizedmacs.xml</item>
+		<item>https://packages.pfsense.org/packages/config/freeradius2/freeradiusauthorizedmacs.xml</item>
 	</additional_files_needed>
 	<adddeleteeditpagefields>
 		<columnitem>
@@ -238,6 +238,17 @@
 			<type>password</type>
 		</field>
 		<field>
+			<fielddescr>Password encryption</fielddescr>
+			<fieldname>varuserspasswordencryption</fieldname>			
+			<description><![CDATA[Select the password encryption for this user. Default: Cleartext-Password]]></description>
+			<type>select</type>
+			<default_value>Cleartext-Password</default_value>
+				<options>
+					<option><name>Cleartext-Password</name><value>Cleartext-Password</value></option>
+					<option><name>MD5-Password</name><value>MD5-Password</value></option>
+				</options>
+		</field>
+		<field>
 			<fielddescr>Enable One-Time-Password for this user</fielddescr>
 			<fieldname>varusersmotpenable</fieldname>
 			<description><![CDATA[This enables the possibility to authenticate against an username and an one-time-password. The client to generate OTP can be installed on various mobile device plattforms like Android and more.<br><br>
@@ -264,7 +275,7 @@
 			
 									1. Write down the first 9 digits of the Epoch-Time on the client.<br>
 									2. Check with <b>date +%s</b> the Epoch-Time on your FreeRADIUS server and write down the first 9 digits.<br>
-									3. Subtract both values, multiply the result with 10 and enter the value in this field. (Default: 0)]]></description>
+									3. Subtract both values, multiply the result with 10 and enter the value in this field. Example: 30 or -180 (Default: 0)]]></description>
 			<type>input</type>
 			<default_value>0</default_value>
 		</field>
@@ -405,6 +416,12 @@
 			<fielddescr>Maximum Bandwidth Up</fielddescr>
 			<fieldname>varusersmaxbandwidthup</fieldname>			
 			<description><![CDATA[Enter the maximum bandwidth for upload in <b>KiloBits</b> per second.]]></description>
+			<type>input</type>
+		</field>
+		<field>
+			<fielddescr>Accounting Interim Interval</fielddescr>
+			<fieldname>varusersacctinteriminterval</fieldname>			
+			<description><![CDATA[Enter the seconds which should be between every interim-update. It MUST be more than 60s and SHOULD NOT be less than 600s. (Default: 600)]]></description>
 			<type>input</type>
 		</field>
 		<field>

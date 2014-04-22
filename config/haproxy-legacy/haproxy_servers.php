@@ -2,7 +2,7 @@
 /* $Id: load_balancer_virtual_server.php,v 1.6.2.1 2006/01/02 23:46:24 sullrich Exp $ */
 /*
 	haproxy_servers.php
-	part of pfSense (http://www.pfsense.com/)
+	part of pfSense (https://www.pfsense.org/)
 	Copyright (C) 2009 Scott Ullrich <sullrich@pfsense.com>
 	Copyright (C) 2008 Remco Hoef <remcoverhoef@pfsense.com>
 	All rights reserved.
@@ -28,7 +28,7 @@
 	ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
-
+$shortcut_section = "haproxy";
 require_once("guiconfig.inc");
 require_once("haproxy.inc");
 
@@ -66,8 +66,8 @@ if ($_GET['act'] == "del") {
 	}
 }
 
-$pfSversion = str_replace("\n", "", file_get_contents("/etc/version"));
-if(strstr($pfSversion, "1.2"))
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version < 2.0)
 	$one_two = true;
 	
 $pgtitle = "Services: HAProxy: Servers";
@@ -93,6 +93,7 @@ include("head.inc");
 		$tab_array[] = array("Settings", false, "haproxy_global.php");
         $tab_array[] = array("Frontends", false, "haproxy_frontends.php");
 		$tab_array[] = array("Servers", true, "haproxy_servers.php");
+		$tab_array[] = array("Sync", false, "pkg_edit.php?xml=haproxy_sync.xml");
 		display_top_tabs($tab_array);
   ?>
   </td></tr>

@@ -4,7 +4,7 @@
 	status_asterisk_log.php
 	part of pfSense
 	Copyright (C) 2009 Scott Ullrich <sullrich@gmail.com>.
-	Copyright (C) 2012 robreg@zsurob.hu
+        Copyright (C) 2012 robi <robreg@zsurob.hu>
 	Copyright (C) 2012 Marcello Coutinho
 	All rights reserved.
 
@@ -41,19 +41,20 @@
 ##|*IDENT=page-status-asterisk
 ##|*NAME=Status: Asterisk Calls page
 ##|*DESCR=Allow access to the 'Status: Asterisk Log' page.
-##|*MATCH=status_asterisk_log.php*
+##|*MATCH=asterisk_log.php*
 ##|-PRIV
 
 require_once("guiconfig.inc");
 
 $pgtitle = array(gettext("Status"),gettext("Asterisk Log"));
+$shortcut_section = "asterisk";
 include("head.inc");
 
 /* Path to Asterisk log file */
-if ($g['platform'] == "nanobsd")
-	$log = "/tmp/log_asterisk";
-else
-	$log = "/var/log/asterisk/messages";
+//if ($g['platform'] == "nanobsd")
+//	$log = "/tmp/asterisk.log";
+//else
+$log = "/var/log/asterisk/messages";
 
 ?>
 
@@ -66,18 +67,27 @@ $file = $_SERVER["SCRIPT_NAME"];
 $break = Explode('/', $file);
 $pfile = $break[count($break) - 1]; 
 
-if ($cmd == "trim") {
-	$trimres=shell_exec("tail -50 '$log' > /tmp/trimmed.csv; rm '$log'; mv /tmp/trimmed.csv '$log'; chmod 666 '$log'");
-}
 
-if ($cmd == "clear") {
-	$trimres=shell_exec("rm '$log'; touch '$log'; chmod 666 '$log'");
+if (file_exists($log)) {
+	if ($cmd == "trim") {
+		$trimres=shell_exec("tail -50 '$log' > /tmp/trimmed_asterisk.log && rm '$log' && mv /tmp/trimmed_asterisk.log '$log' && chown asterisk:asterisk '$log' && chmod g+w '$log'");
+		header( 'Location: asterisk_log.php?savemsg=Log+trimmed.') ;
+	}
+	if ($cmd == "clear") {
+		$trimres=shell_exec("rm '$log' && touch '$log' && chown asterisk:asterisk '$log' && chmod g+w '$log'");
+		header( 'Location: asterisk_log.php?savemsg=Log+cleared.') ;
+	}
 }
-
 ?>
 
 <body link="#0000CC" vlink="#0000CC" alink="#0000CC">
 	<?php include("fbegin.inc"); ?>
+	<?php
+	$savemsg = $_GET["savemsg"];
+	if ($savemsg) {
+	  print_info_box($savemsg);
+	}
+	?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
 		<tr>
 			<td>
@@ -98,9 +108,9 @@ if ($cmd == "clear") {
 				<tr>
 					<td colspan="2" class="listtopic">Last 50 Asterisk log entries</td>
 				</tr>
-				
+
 				<tr valign="top"><td class="listlr" nowrap>
-				
+
 				<?php
 					$showlog_command=shell_exec("tail -50 '$log'");
 					echo nl2br($showlog_command);
@@ -123,6 +133,12 @@ if ($cmd == "clear") {
 		<strong><?=gettext("Note:");?><br /></strong>
 	</span>
 	<?=gettext("Trim keeps the last 50 lines of the log.");?>
+<?
+if ($g['platform'] == "nanobsd")
+        echo "<br>This log may be lost when rebooting the system.";
+?>
+
+
 </span>
 
 <?php include("fend.inc"); ?>

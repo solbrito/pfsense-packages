@@ -58,6 +58,9 @@ $a_acltypes[] = array('name' => 'path_contains', 'descr' => 'Path contains',
 $a_acltypes[] = array('name' => 'source_ip', 'descr' => 'Source IP',
 				'mode' => '', 'syntax' => 'src');
 
+//$a_acltypes[] = array('name' => 'ssl_sni_matches',  'descr' => 'Server Name Indication TLS extension matches', 
+//				'mode' => 'https', 'syntax' => 'req_ssl_sni -i');
+
 function haproxy_custom_php_deinstall_command() {
 	exec("cd /var/db/pkg && pkg_delete `ls | grep haproxy`");
 	exec("rm /usr/local/pkg/haproxy.inc");
@@ -186,7 +189,7 @@ EOD;
 			/* link to frontend */
 			foreach ($a_backends as $id => $be) {
 				if ($a_backends[$id]['name'] == $oldserver['backend']) {
-					$a_backends[$id]['pool'] = $pool['name'];
+					$a_backends[$id]['backend_serverpool'] = $pool['name'];
 					$pool['monitor_uri'] = $be['monitor_uri'];
 					unset($a_backends[$id]['monitor_uri']);
 					break;
@@ -199,6 +202,29 @@ EOD;
 			$a_pools[] = $pool;
 		}
 		unset($config['installedpackages']['haproxy']['ha_servers']);
+		write_config();
+	}
+	
+	/* XML update to: pkg v1.3 and 'pool' changed to 'backend_serverpool' because 'pool' was added to listtags() in xmlparse.inc */
+	if (is_array($config['installedpackages']['haproxy']['ha_backends']['item'][0]['pool']))
+	{
+		foreach($config['installedpackages']['haproxy']['ha_backends']['item'] as &$frontend)
+		{
+			$backend_serverpool = $frontend['pool'][0];
+			$frontend['backend_serverpool'] = $backend_serverpool;
+			unset($frontend['pool']);
+		}
+		write_config();
+	}
+	//also move setting for existing 2.0 installations as only the new variable is used 
+	if (isset($config['installedpackages']['haproxy']['ha_backends']['item'][0]['pool']))
+	{
+		foreach($config['installedpackages']['haproxy']['ha_backends']['item'] as &$frontend)
+		{
+			$backend_serverpool = $frontend['pool'];
+			$frontend['backend_serverpool'] = $backend_serverpool;
+			unset($frontend['pool']);
+		}
 		write_config();
 	}
 
@@ -420,7 +446,7 @@ function haproxy_writeconf() {
 		foreach ($a_backends as $backend) {
 			if($backend['status'] != 'active')
 				continue;
-			if(!$backend['pool'])
+			if(!$backend['backend_serverpool'])
 				continue;
 
 			$bname = $backend['extaddr'] . ":" . $backend['port'];
@@ -508,7 +534,7 @@ function haproxy_writeconf() {
 				fwrite ($fd, "\tmaxconn\t\t\t" . $bind['max_connections'] . "\n");
 
 			if($bind['client_timeout'])
-				fwrite ($fd, "\tclitimeout\t\t" . $bind['client_timeout'] . "\n");
+				fwrite ($fd, "\ttimeout client\t\t" . $bind['client_timeout'] . "\n");
 
 	
 			// Combine the rest of the listener configs
@@ -519,7 +545,7 @@ function haproxy_writeconf() {
 				if(!is_array($a_acl)) 
 					$a_acl=array();
 			
-				$poolname = $bconfig['pool'] . "_" . strtolower($bconfig['type']);
+				$poolname = $bconfig['backend_serverpool'] . "_" . strtolower($bconfig['type']);
 
 				// Create different pools if the svrport is set
 				if ($bconfig['svrport'] > 0)
@@ -564,7 +590,7 @@ function haproxy_writeconf() {
 	if (is_array($a_pendingpl) && is_array($a_pools)) {
 		foreach ($a_pendingpl as $pending) {
 			foreach ($a_pools as $pool) {
-				if ($pending['frontend']['pool'] == $pool['name']) {
+				if ($pending['frontend']['backend_serverpool'] == $pool['name']) {
 					write_backend($fd, $pending['name'], $pool, $pending['frontend']);
 				}
 			}
@@ -576,15 +602,18 @@ function haproxy_writeconf() {
 	if(isset($config['installedpackages']['haproxy']['enablesync'])) {
 		if($config['installedpackages']['haproxy']['synchost1']) {
 			haproxy_do_xmlrpc_sync($config['installedpackages']['haproxy']['synchost1'], 
+				$config['installedpackages']['haproxy']['syncusername'],
 				$config['installedpackages']['haproxy']['syncpassword']);
 		}
 		if($config['installedpackages']['haproxy']['synchost2']) {
 			haproxy_do_xmlrpc_sync($config['installedpackages']['haproxy']['synchost2'], 
+				$config['installedpackages']['haproxy']['syncusername'],
 				$config['installedpackages']['haproxy']['syncpassword']);
 		}
 		if($config['installedpackages']['haproxy']['synchost3']) {
 			haproxy_do_xmlrpc_sync($config['installedpackages']['haproxy']['synchost3'], 
-				$config['installedpackages']['haproxy']['syncpassword']);				
+				$config['installedpackages']['haproxy']['syncusername'],
+				$config['installedpackages']['haproxy']['syncpassword']);
 		}
 	}
 
@@ -598,7 +627,7 @@ function haproxy_writeconf() {
 
 	$freebsd_version = substr(trim(`uname -r`), 0, 1);
 	if(!file_exists("/usr/bin/limits")) {
-		exec("fetch -q -o /usr/bin/limits http://files.pfsense.org/extras/{$freebsd_version}/limits");
+		exec("fetch -q -o /usr/bin/limits https://files.pfsense.org/extras/{$freebsd_version}/limits");
 		exec("chmod a+rx /usr/bin/limits");
 	}
 }
@@ -606,6 +635,11 @@ function haproxy_writeconf() {
 function haproxy_is_running() {
         $running = (shell_exec("/bin/pgrep -x haproxy") != '');
         return $running;
+}
+
+function haproxy_check_config() {
+	exec("/usr/local/sbin/haproxy -c -f /var/etc/haproxy.cfg 2>&1", $output);
+	return implode("\n", $output);
 }
 
 function haproxy_check_run($reload) {
@@ -647,7 +681,7 @@ function haproxy_check_run($reload) {
 	
 }
 
-function haproxy_do_xmlrpc_sync($sync_to_ip, $password) {
+function haproxy_do_xmlrpc_sync($sync_to_ip, $username, $password) {
 	global $config, $g;
 
 	if(!$password)
@@ -655,6 +689,9 @@ function haproxy_do_xmlrpc_sync($sync_to_ip, $password) {
 
 	if(!$sync_to_ip)
 		return;
+
+	if (empty($username))
+		$username = "admin";
 	
 	// Do not allow syncing to self.
 	$donotsync = false;
@@ -697,6 +734,7 @@ function haproxy_do_xmlrpc_sync($sync_to_ip, $password) {
 	unset($xml['synchost1']);
 	unset($xml['synchost2']);
 	unset($xml['synchost3']);
+	unset($xml['syncusername']);
 	unset($xml['syncpassword']);
 
 	/* assemble xmlrpc payload */
@@ -711,7 +749,7 @@ function haproxy_do_xmlrpc_sync($sync_to_ip, $password) {
 	$method = 'pfsense.merge_installedpackages_section_xmlrpc';
 	$msg = new XML_RPC_Message($method, $params);
 	$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
-	$cli->setCredentials('admin', $password);
+	$cli->setCredentials($username, $password);
 	if($g['debug'])
 		$cli->setDebug(1);
 	/* send our XMLRPC message and timeout after 250 seconds */
@@ -744,7 +782,7 @@ function haproxy_do_xmlrpc_sync($sync_to_ip, $password) {
 	log_error("HAProxy XMLRPC reload data {$url}:{$port}.");
 	$msg = new XML_RPC_Message($method, $params);
 	$cli = new XML_RPC_Client('/xmlrpc.php', $url, $port);
-	$cli->setCredentials('admin', $password);
+	$cli->setCredentials($username, $password);
 	$resp = $cli->send($msg, "250");
 	if(!$resp) {
 		$error = "A communications error occurred while attempting HAProxy XMLRPC sync with {$url}:{$port} (exec_php).";

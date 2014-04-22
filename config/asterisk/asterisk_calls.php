@@ -4,12 +4,11 @@
 	status_asterisk_calls.php
 	part of pfSense
 	Copyright (C) 2009 Scott Ullrich <sullrich@gmail.com>.
-	Copyright (C) 2012 robreg@zsurob.hu
+	Copyright (C) 2013 robi <robreg@zsurob.hu>
 	All rights reserved.
 
 	originally part of m0n0wall (http://m0n0.ch/wall)
 	Copyright (C) 2003-2005 Manuel Kasper <mk@neon1.net>.
-	Copyright (C) 2012 robreg@zsurob.hu
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -41,12 +40,13 @@
 ##|*IDENT=page-status-asterisk
 ##|*NAME=Status: Asterisk Calls page
 ##|*DESCR=Allow access to the 'Status: Asterisk Calls' page.
-##|*MATCH=status_asterisk_calls.php*
+##|*MATCH=asterisk_calls.php*
 ##|-PRIV
 
 require_once("guiconfig.inc");
 
 $pgtitle = array(gettext("Status"),gettext("Asterisk Calls"));
+$shortcut_section = "asterisk";
 include("head.inc");
 
 /* Path to call log database */
@@ -54,7 +54,6 @@ $callog = "/var/log/asterisk/cdr-csv/Master.csv";
 
 /* Data input processing */
 $cmd =  $_GET['cmd'];
-//$cmd  = str_replace("+", " ", $cmd);
 
 $file = $_SERVER["SCRIPT_NAME"];
 $break = Explode('/', $file);
@@ -63,17 +62,19 @@ $pfile = $break[count($break) - 1];
 if (file_exists($callog))
 	switch ($cmd){
 		case "trim":
-		$trimres=shell_exec("tail -50 '$callog' > /tmp/trimmed.csv; rm '$callog'; mv /tmp/trimmed.csv '$callog'; chmod 666 '$callog'");
+		$trimres=shell_exec("tail -50 '$callog' > /tmp/trimmed_asterisk.csv && rm '$callog' && mv /tmp/trimmed_asterisk.csv '$callog' && chown asterisk:asterisk '$callog' && chmod g+w '$callog'");
+		header( 'Location: asterisk_calls.php?savemsg=Calls+log+trimmed.') ;
 		break;
 
 		case "clear":
-		$trimres=shell_exec("rm '$callog'; touch '$callog'; chmod 666 '$callog'");
+		$trimres=shell_exec("rm '$callog' && touch '$callog' && chown asterisk:asterisk '$callog' && chmod g+w '$callog'");
+		header( 'Location: asterisk_calls.php?savemsg=Calls+log+cleared.') ;
 		break;
 
 		case "download":
 		// session_cache_limiter('none'); //*Use before session_start()
 		// session_start();
-		
+
 			header('Content-Description: File Transfer');
 			header('Content-Type: application/octet-stream');
 			header('Content-Disposition: attachment; filename='.basename($callog));
@@ -93,6 +94,12 @@ if (file_exists($callog))
 
 <body link="#0000CC" vlink="#0000CC" alink="#0000CC">
 	<?php include("fbegin.inc"); ?>
+	<?php
+	$savemsg = $_GET["savemsg"];
+	if ($savemsg) {
+	  print_info_box($savemsg);
+	}
+	?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
 		<tr>
 			<td>
@@ -110,23 +117,21 @@ if (file_exists($callog))
 			<td>
 				<div id="mainarea">
 				<?php
-					//$trimres=shell_exec("tail -50 '$callog' > /tmp/trimmed.csv; rm '$callog'; mv /tmp/trimmed.csv '$callog'");
-					//print $trimres . "Last 50 calls: <br>";
 					if (file_exists($callog))
 						$file_handle = fopen($callog, "r");
 				?>
-				<table class="tabcont" width="100%" border="0" cellpadding="6" cellspacing="0">
-					<tr>
-						<td colspan="6" class="listtopic">Last 50 Asterisk calls</td>
-					</tr>
-					<tr>
-						<td nowrap class="listhdrr"><?=gettext("From");?></td>
-						<td nowrap class="listhdrr"><?=gettext("To");?></a></td>
-						<td nowrap class="listhdrr"><?=gettext("Start");?></td>
-						<td nowrap class="listhdrr"><?=gettext("End");?></a></td>
-						<td nowrap class="listhdrr"><?=gettext("Duration");?></a></td>
-						<td nowrap class="listhdrr"><?=gettext("Status");?></td>
-					</tr>
+					<table class="tabcont" width="100%" border="0" cellpadding="6" cellspacing="0">
+						<tr>
+							<td colspan="6" class="listtopic">Last 50 Asterisk calls</td>
+						</tr>
+						<tr>
+							<td nowrap class="listhdrr"><?=gettext("From");?></td>
+							<td nowrap class="listhdrr"><?=gettext("To");?></a></td>
+							<td nowrap class="listhdrr"><?=gettext("Start");?></td>
+							<td nowrap class="listhdrr"><?=gettext("End");?></a></td>
+							<td nowrap class="listhdrr"><?=gettext("Duration");?></a></td>
+							<td nowrap class="listhdrr"><?=gettext("Status");?></td>
+						</tr>
 				<?php
 					$out = '';
 					if (file_exists($callog)){
@@ -134,7 +139,7 @@ if (file_exists($callog))
 							$lin = fgetcsv($file_handle, 102400);
 							if ($lin[12] != "") {
 								$out = "<tr>" . $out;
-								$out = "<td class='listlr'>" . str_replace('"', '', $lin[4]) . "</td><td class='listlr'>" . $lin[2] . "</td><td class='listlr'>" . $lin[9] . "</td><td class='listlr'>" . $lin[11] . "</td><td class='listlr'>" . gmdate("G:i:s", $lin[12]) . "</td><td class='listlr'>" . $lin[14] . "</td>" . $out;
+								$out = "<td class='listlr'>" . utf8_decode(str_replace('"', '', $lin[4])) . "</td><td class='listlr'>" . $lin[2] . "</td><td class='listlr'>" . $lin[9] . "</td><td class='listlr'>" . $lin[11] . "</td><td class='listlr'>" . gmdate("G:i:s", $lin[12]) . "</td><td class='listlr'>" . $lin[14] . "</td>" . $out;
 								$out = "</tr>" . $out;
 							}
 						}
@@ -160,6 +165,13 @@ if (file_exists($callog))
 	<?=gettext("Listed in reverse order (latest on top).");?> <br>
 	<?=gettext("Duration includes ringing time.");?> <br>
 	<?=gettext("Trim keeps the last 50 entries.");?>
+
+<?
+if ($g['platform'] == "nanobsd")
+        echo "<br>This log may be lost when rebooting the system.";
+?>
+
+
 </span>
 
 

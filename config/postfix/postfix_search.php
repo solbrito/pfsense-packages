@@ -1,15 +1,15 @@
 <?php
 /*
 	postfix_search.php
-	part of pfSense (http://www.pfsense.com/)
-	Copyright (C) 2011 Marcello Coutinho <marcellocoutinho@gmail.com>
+	part of pfSense (https://www.pfsense.org/)
+	Copyright (C) 2011-2013 Marcello Coutinho <marcellocoutinho@gmail.com>
 	based on varnish_view_config.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
 
-	1. Redistributions of source code must retain the above copyright notice,
+	1. Redistributions of source code MUST retain the above copyright notice,
 	   this list of conditions and the following disclaimer.
 
 	2. Redistributions in binary form must reproduce the above copyright
@@ -27,15 +27,15 @@
 	ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
-
+$shortcut_section = "postfix";
 require("guiconfig.inc");
 
 $uname=posix_uname();
 if ($uname['machine']=='amd64')
         ini_set('memory_limit', '250M');
 
-$pfSversion = str_replace("\n", "", file_get_contents("/etc/version"));
-if(strstr($pfSversion, "1.2"))
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version < 2.0)
 	$one_two = true;
 
 $pgtitle = "Diagnostics: Search Mail";

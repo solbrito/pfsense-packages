@@ -1,7 +1,7 @@
 <?php
 /*
 	sarg_reports.php
-	part of pfSense (http://www.pfsense.com/)
+	part of pfSense (https://www.pfsense.org/)
 	Copyright (C) 2012 Marcello Coutinho <marcellocoutinho@gmail.com>
 	All rights reserved.
 
@@ -29,8 +29,8 @@
 
 require("guiconfig.inc");
 
-	$pfSversion = str_replace("\n", "", file_get_contents("/etc/version"));
-	if(strstr($pfSversion, "1.2"))
+	$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+	if ($pf_version < 2.0)
 		$one_two = true;
 	
 	$pgtitle = "Status: Sarg Reports";
@@ -61,7 +61,9 @@ require("guiconfig.inc");
 	$tab_array[] = array(gettext("XMLRPC Sync"), false, "/pkg_edit.php?xml=sarg_sync.xml&id=0");
 	$tab_array[] = array(gettext("Help"), false, "/pkg_edit.php?xml=sarg_about.php");
 	display_top_tabs($tab_array);
+	conf_mount_rw();
 	exec('rm -f /usr/local/www/sarg-images/temp/*');
+	conf_mount_ro();
 	?>
 			</td></tr>
 	 		<tr>

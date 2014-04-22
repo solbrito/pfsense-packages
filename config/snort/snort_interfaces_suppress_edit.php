@@ -10,6 +10,7 @@
  *
  * modified for the pfsense snort package
  * Copyright (C) 2009-2010 Robert Zelaya.
+ * Copyright (C) 2014 Bill Meeks
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +38,6 @@
 require_once("guiconfig.inc");
 require_once("/usr/local/pkg/snort/snort.inc");
 
-
 if (!is_array($config['installedpackages']['snortglobal']))
 	$config['installedpackages']['snortglobal'] = array();
 $snortglob = $config['installedpackages']['snortglobal'];
@@ -48,17 +48,23 @@ if (!is_array($config['installedpackages']['snortglobal']['suppress']['item']))
 	$config['installedpackages']['snortglobal']['suppress']['item'] = array();
 $a_suppress = &$config['installedpackages']['snortglobal']['suppress']['item'];
 
-$id = $_GET['id'];
-if (isset($_POST['id']))
+if (isset($_POST['id']) && is_numericint($_POST['id']))
 	$id = $_POST['id'];
+elseif (isset($_GET['id']) && is_numericint($_GET['id']))
+	$id = htmlspecialchars($_GET['id']);
 
+/* Should never be called without identifying list index, so bail */
+if (is_null($id)) {
+	header("Location: /snort/snort_interfaces_suppress.php");
+	exit;
+}
 
 /* returns true if $name is a valid name for a whitelist file name or ip */
 function is_validwhitelistname($name) {
 	if (!is_string($name))
 		return false;
 
-	if (!preg_match("/[^a-zA-Z0-9\.\/]/", $name))
+	if (!preg_match("/[^a-zA-Z0-9\_\.\/]/", $name))
 		return true;
 
 	return false;
@@ -70,13 +76,15 @@ if (isset($id) && $a_suppress[$id]) {
 	$pconfig['name'] = $a_suppress[$id]['name'];
 	$pconfig['uuid'] = $a_suppress[$id]['uuid'];
 	$pconfig['descr'] = $a_suppress[$id]['descr'];
-	if (!empty($a_suppress[$id]['suppresspassthru']));
+	if (!empty($a_suppress[$id]['suppresspassthru'])) {
 		$pconfig['suppresspassthru'] = base64_decode($a_suppress[$id]['suppresspassthru']);
+		$pconfig['suppresspassthru'] = str_replace("&#8203;", "", $pconfig['suppresspassthru']);
+	}
 	if (empty($a_suppress[$id]['uuid']))
 		$pconfig['uuid'] = uniqid();
 }
 
-if ($_POST['submit']) {
+if ($_POST['save']) {
 	unset($input_errors);
 	$pconfig = $_POST;
 
@@ -88,7 +96,7 @@ if ($_POST['submit']) {
 		$input_errors[] = "Whitelist file names may not be named defaultwhitelist.";
 
 	if (is_validwhitelistname($_POST['name']) == false)
-		$input_errors[] = "Whitelist file name may only consist of the characters a-z, A-Z and 0-9 _. Note: No Spaces. Press Cancel to reset.";
+		$input_errors[] = "Whitelist file name may only consist of the characters \"a-z, A-Z, 0-9 and _\". Note: No Spaces or dashes. Press Cancel to reset.";
 
 	/* check for name conflicts */
 	foreach ($a_suppress as $s_list) {
@@ -107,8 +115,10 @@ if ($_POST['submit']) {
 		$s_list['name'] = $_POST['name'];
 		$s_list['uuid'] = uniqid();
 		$s_list['descr']  =  mb_convert_encoding($_POST['descr'],"HTML-ENTITIES","auto");
-		if ($_POST['suppresspassthru'])
+		if ($_POST['suppresspassthru']) {
+			$s_list['suppresspassthru'] = str_replace("&#8203;", "", $s_list['suppresspassthru']);
 			$s_list['suppresspassthru'] = base64_encode($_POST['suppresspassthru']);
+		}
 
 		if (isset($id) && $a_suppress[$id])
 			$a_suppress[$id] = $s_list;
@@ -123,7 +133,7 @@ if ($_POST['submit']) {
 	}
 }
 
-$pgtitle = "Services: Snort: Suppression: Edit";
+$pgtitle = gettext("Snort: Suppression List Edit - {$a_suppress[$id]['name']}");
 include_once("head.inc");
 
 ?>
@@ -141,70 +151,76 @@ if ($savemsg)
 ?>
 <form action="/snort/snort_interfaces_suppress_edit.php" name="iform" id="iform" method="post">
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
-<tr><td class="tabcont">
-<table width="100%" border="0" cellpadding="6" cellspacing="0">
+<tr><td>
+<?php
+        $tab_array = array();
+        $tab_array[0] = array(gettext("Snort Interfaces"), false, "/snort/snort_interfaces.php");
+        $tab_array[1] = array(gettext("Global Settings"), false, "/snort/snort_interfaces_global.php");
+        $tab_array[2] = array(gettext("Updates"), false, "/snort/snort_download_updates.php");
+        $tab_array[3] = array(gettext("Alerts"), false, "/snort/snort_alerts.php");
+        $tab_array[4] = array(gettext("Blocked"), false, "/snort/snort_blocked.php");
+	$tab_array[5] = array(gettext("Pass Lists"), false, "/snort/snort_passlist.php");
+        $tab_array[6] = array(gettext("Suppress"), true, "/snort/snort_interfaces_suppress.php");
+	$tab_array[7] = array(gettext("IP Lists"), false, "/snort/snort_ip_list_mgmt.php");
+	$tab_array[8] = array(gettext("Sync"), false, "/pkg_edit.php?xml=snort/snort_sync.xml");
+        display_top_tabs($tab_array, true);
+?>
+</td></tr>
+<tr><td><div id="mainarea">
+<table id="maintable" class="tabcont" width="100%" border="0" cellpadding="6" cellspacing="0">
 <tr>
 	<td colspan="2" class="listtopic">Add the name and description of the file.</td>
 </tr>
 <tr>
-	<td width="22%" valign="top" class="vncellreq">Name</td>
-	<td width="78%" class="vtable"><input name="name" type="text" id="name"
-		class="formfld unkown" size="40" value="<?=htmlspecialchars($pconfig['name']);?>" /> <br />
-	<span class="vexpl"> The list name may only consist of the
-	characters a-z, A-Z and 0-9. <span class="red">Note: </span> No
-	Spaces. </span></td>
+	<td width="22%" valign="top" class="vncellreq"><?php echo gettext("Name"); ?></td>
+	<td width="78%" class="vtable"><input name="name" type="text" id="name" 
+		class="formfld unknown" size="40" value="<?=htmlspecialchars($pconfig['name']);?>" /> <br />
+	<span class="vexpl"> <?php echo gettext("The list name may only consist of the " .
+	"characters \"a-z, A-Z, 0-9 and _\"."); ?>&nbsp;&nbsp;<span class="red"><?php echo gettext("Note:"); ?> </span>
+	<?php echo gettext("No Spaces or dashes."); ?> </span></td>
 </tr>
 <tr>
-	<td width="22%" valign="top" class="vncell">Description</td>
-	<td width="78%" class="vtable"><input name="descr" type="text"
-		class="formfld unkown" id="descr" size="40" value="<?=$pconfig['descr'];?>" /> <br />
-	<span class="vexpl"> You may enter a description here for your
-	reference (not parsed). </span></td>
+	<td width="22%" valign="top" class="vncell"><?php echo gettext("Description"); ?></td>
+	<td width="78%" class="vtable"><input name="descr" type="text" 
+		class="formfld unknown" id="descr" size="40" value="<?=$pconfig['descr'];?>" /> <br />
+	<span class="vexpl"> <?php echo gettext("You may enter a description here for your " .
+	"reference (not parsed)."); ?> </span></td>
 </tr>
 <tr>
-	<td colspan="2">
-		<div style='background-color: #E0E0E0' id='redbox'>
-		<table width='100%'>
-			<tr>
-				<td width='8%'>&nbsp;&nbsp;&nbsp;</td>
-				<td width='70%'><font size="2" color='#FF850A'><b>NOTE:</b></font>
-				<font color='#000000'>&nbsp;&nbsp;The threshold keyword
-				is deprecated as of version 2.8.5. Use the event_filter keyword
-				instead.</font></td>
-			</tr>
-		</table>
-		</div>
+	<td colspan="2" align="center" height="30px">
+				<font size="2"><span class="red"><strong><?php echo gettext("NOTE:"); ?></strong></span></font>
+				<font color='#000000'>&nbsp;<?php echo gettext("The threshold keyword " .
+				"is deprecated as of version 2.8.5. Use the event_filter keyword " .
+				"instead."); ?></font>
 	</td>
 </tr>
 <tr>
-	<td colspan="2" valign="top" class="listtopic">Apply suppression or
-	filters to rules. Valid keywords are 'suppress', 'event_filter' and
-	'rate_filter'.</td>
+	<td colspan="2" valign="top" class="listtopic"><?php echo gettext("Apply suppression or " .
+	"filters to rules. Valid keywords are 'suppress', 'event_filter' and 'rate_filter'."); ?></td>
 </tr>
 <tr>
-	<td colspan="2" valign="top" class="vncell"><b>Example 1;</b>
-		suppress gen_id 1, sig_id 1852, track by_src, ip 10.1.1.54<br>
-		<b>Example 2;</b> event_filter gen_id 1, sig_id 1851, type limit,
-		track by_src, count 1, seconds 60<br>
-		<b>Example 3;</b> rate_filter gen_id 135, sig_id 1, track by_src,
+<td colspan="2" valign="top" class="vncell"><b><?php echo gettext("Example 1;"); ?></b>
+		suppress gen_id 1, sig_id 1852, track by_src, ip 10.1.1.54<br/>
+		<b><?php echo gettext("Example 2;"); ?></b> event_filter gen_id 1, sig_id 1851, type limit,
+		track by_src, count 1, seconds 60<br/>
+		<b><?php echo gettext("Example 3;"); ?></b> rate_filter gen_id 135, sig_id 1, track by_src,
 		count 100, seconds 1, new_action log, timeout 10</td>
 </tr>
 <tr>
-	<td width="10%" class="vncell">&nbsp;Advanced pass through</td>
-	<td width="100%" class="vtable"><textarea wrap="off"
-		name="suppresspassthru" cols="90" rows="28" id="suppresspassthru" class="formpre"><?=htmlspecialchars($pconfig['suppresspassthru']);?></textarea>
+	<td colspan="2" class="vtable"><textarea wrap="off" style="width:100%; height:100%;" 
+		name="suppresspassthru" cols="90" rows="26" id="suppresspassthru" class="formpre"><?=htmlspecialchars($pconfig['suppresspassthru']);?></textarea>
 	</td>
 </tr>
 <tr>
-	<td width="22%">&nbsp</td>
-	<td width="78%"><input id="submit" name="submit" type="submit"
-		class="formbtn" value="Save" /> <input id="cancelbutton"
-		name="cancelbutton" type="button" class="formbtn" value="Cancel"
-		onclick="history.back()" /> <?php if (isset($id) && $a_suppress[$id]): ?>
-		<input name="id" type="hidden" value="<?=$id;?>" /> <?php endif; ?>
+	<td colspan="2"><input id="save" name="save" type="submit" 
+		class="formbtn" value="Save" />&nbsp;&nbsp;<input id="cancelbutton" 
+		name="cancelbutton" type="button" class="formbtn" value="Cancel" 
+		onclick="history.back();"/> <?php if (isset($id) && $a_suppress[$id]): ?>
+		<input name="id" type="hidden" value="<?=$id;?>"/> <?php endif; ?>
 	</td>
 </tr>
 </table>
+</div>
 </td></tr>
 </table>
 </form>

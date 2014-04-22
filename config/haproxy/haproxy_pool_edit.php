@@ -2,7 +2,7 @@
 /* $Id: load_balancer_pool_edit.php,v 1.24.2.23 2007/03/03 00:07:09 smos Exp $ */
 /*
 	haproxy_pool_edit.php
-	part of pfSense (http://www.pfsense.com/)
+	part of pfSense (https://www.pfsense.org/)
 	Copyright (C) 2009 Scott Ullrich <sullrich@pfsense.com>
 	Copyright (C) 2008 Remco Hoef <remcoverhoef@pfsense.com>
 	All rights reserved.
@@ -133,8 +133,8 @@ if ($_POST) {
 			$a_backend = &$config['installedpackages']['haproxy']['ha_backends']['item'];
 
 			for ( $i = 0; $i < count($a_backend); $i++) {
-				if ($a_backend[$i]['pool'] == $pool['name'])
-					$a_backend[$i]['pool'] = $_POST['name'];
+				if ($a_backend[$i]['backend_serverpool'] == $pool['name'])
+					$a_backend[$i]['backend_serverpool'] = $_POST['name'];
 			}
 		}
 
@@ -171,8 +171,8 @@ if ($_POST) {
 	$pconfig['a_servers']=&$a_pools[$id]['ha_servers']['item'];	
 }
 
-$pfSversion = str_replace("\n", "", file_get_contents("/etc/version"));
-if(strstr($pfSversion, "1.2"))
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version < 2.0)
 	$one_two = true;
 
 $pgtitle = "HAProxy: pool: Edit";

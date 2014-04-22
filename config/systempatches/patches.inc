@@ -29,10 +29,19 @@
 require_once("globals.inc");
 require_once("util.inc");
 
-$git_root_url = "http://github.com/bsdperimeter/pfsense/commit/";
+global $git_root_url, $patch_suffix, $patch_dir, $patch_cmd;
+$git_root_url = "http://github.com/pfsense/pfsense/commit/";
 $patch_suffix = ".patch";
 $patch_dir = "/var/patches";
 $patch_cmd = "/usr/bin/patch";
+
+function patch_package_install() {
+	patch_add_shellcmd();
+}
+
+function patch_package_deinstall() {
+	patch_remove_shellcmd();
+}
 
 function patch_commit($patch, $action, $test=false, $fulldetail=false) {
 	global $patch_dir, $patch_cmd, $patch_suffix;
@@ -41,15 +50,17 @@ function patch_commit($patch, $action, $test=false, $fulldetail=false) {
 	$check = ($test) ? "--check" : "";
 	$force = ($action == "revert") ? "-f" : "-t";
 	$direction = ($action == "revert") ? "--reverse" : "--forward";
-	$whitespace = $patch['ignorewhitespace'] ? "--ignore-whitespace" : "";
+	$whitespace = isset($patch['ignorewhitespace']) ? "--ignore-whitespace" : "";
 	$pathstrip = '-p' . $patch['pathstrip'];
 	$full_patch_command = "{$patch_cmd} --directory={$directory} {$force} {$pathstrip} {$filename} {$check} {$direction} {$whitespace}";
+	conf_mount_rw();
 	patch_write($patch);
 	if (!$fulldetail)
 		$output = (mwexec($full_patch_command, true) == 0);
 	else
 		$output = $full_patch_command . "\n\n" . shell_exec($full_patch_command . ' 2>&1');
 	patch_erase($patch);
+	conf_mount_ro();
 	return $output;
 }
 
@@ -139,4 +150,55 @@ function is_github_url($url) {
 	$urlbits = explode("/", $url);
 	return (substr($urlbits[2], -10) == "github.com");
 }
+
+function bootup_apply_patches() {
+	global $config;
+
+	$a_patches = &$config['installedpackages']['patches']['item'];
+
+	foreach ($a_patches as $patch) {
+		/* Skip the patch if it should not be automatically applied. */
+		if (!isset($patch['autoapply']))
+			continue;
+		/* If the patch can be reverted it is already applied, so skip it. */
+		if (!patch_test_revert($patch)) {
+			/* Only attempt to apply if it can be applied. */
+			if (patch_test_apply($patch)) {
+				patch_apply($patch);
+			}
+		}
+	}
+}
+
+function patch_add_shellcmd() {
+	global $config;
+	$a_earlyshellcmd = &$config['system']['earlyshellcmd'];
+	if (!is_array($a_earlyshellcmd))
+		$a_earlyshellcmd = array();
+	$found = false;
+	foreach ($a_earlyshellcmd as $idx => $cmd)
+		if (stristr($cmd, "apply_patches.php"))
+			$found = true;
+	if (!$found) {
+		$a_earlyshellcmd[] = "/usr/local/bin/php -f /usr/local/bin/apply_patches.php";
+		write_config("System Patches package added a shellcmd");
+	}
+}
+
+function patch_remove_shellcmd() {
+	global $config;
+	$a_earlyshellcmd = &$config['system']['earlyshellcmd'];
+	if (!is_array($a_earlyshellcmd))
+		$a_earlyshellcmd = array();
+	$removed = false;
+	foreach ($a_earlyshellcmd as $idx => $cmd) {
+		if (stristr($cmd, "apply_patches.php")) {
+			unset($a_earlyshellcmd[$idx]);
+			$removed = true;
+		}
+	}
+	if ($removed)
+		write_config("System Patches package removed a shellcmd");
+}
+
 ?>

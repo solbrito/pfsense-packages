@@ -33,7 +33,11 @@ require_once('pfsense-utils.inc');
 require_once('pkg-utils.inc');
 require_once('filter.inc');
 require_once('service-utils.inc');
-require_once('squid.inc');
+
+if (file_exists('squid.inc')) {
+  require_once('squid.inc');
+}
+else update_log("File 'squid.inc' not found.");
 
 $pfs_version = substr(trim(file_get_contents("/etc/version")),0,3);
 switch ($pfs_version) {
@@ -290,13 +294,15 @@ function lightsquid_resync() {
 					$ifmgr = $ifmgr . $realif[0] . ";";
 			}
 
-			# ? delete ?
-			$config['installedpackages']['squidcache']['config'][0]['ext_cachemanager'] = $ifmgr;
-			# now right
-			$config['installedpackages']['squidnac']['config'][0]['ext_cachemanager'] = $ifmgr;
-
-			write_config();
-			squid_resync();
+			/* Only save and resync if we're actually making any changes. */
+			if (strpos($config['installedpackages']['squidnac']['config'][0]['ext_cachemanager'], $ifmgr) === FALSE) {
+				$config['installedpackages']['squidnac']['config'][0]['ext_cachemanager'] = $ifmgr;
+				write_config();
+				if (function_exists('squid_resync'))
+					squid_resync();
+				else
+					update_log("Function 'squid_resync' not found.");
+			}
 		}
 	}
 

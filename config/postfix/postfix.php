@@ -1,15 +1,15 @@
 <?php
 /*
 	postfix.php
-	part of pfSense (http://www.pfsense.com/)
-	Copyright (C) 2011 Marcello Coutinho <marcellocoutinho@gmail.com>
+	part of pfSense (https://www.pfsense.org/)
+	Copyright (C) 2011-2013 Marcello Coutinho <marcellocoutinho@gmail.com>
 	based on varnish_view_config.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
 
-	1. Redistributions of source code must retain the above copyright notice,
+	1. Redistributions of source code MUST retain the above copyright notice,
 	   this list of conditions and the following disclaimer.
 
 	2. Redistributions in binary form must reproduce the above copyright
@@ -150,10 +150,13 @@ function grep_log(){
 	$m=date('M',strtotime($postfix_arg['time'],$curr_time));
 	$j=substr("  ".date('j',strtotime($postfix_arg['time'],$curr_time)),-3);
 	# file grep loop
+	$maillog_filename = "/var/log/maillog";
 	foreach ($postfix_arg['grep'] as $hour){
-	  print "/usr/bin/grep '^".$m.$j." ".$hour.".*".$grep."' /var/log/maillog\n"; 
+		if (!file_exists($maillog_filename) || !is_readable($maillog_filename))
+			continue;
+	  print "/usr/bin/grep '^".$m.$j." ".$hour.".*".$grep."' {$maillog_filename}\n";
 	  $lists=array();
-	  exec("/usr/bin/grep " . escapeshellarg('^'.$m.$j." ".$hour.".*".$grep)." /var/log/maillog", $lists);
+	  exec("/usr/bin/grep " . escapeshellarg('^'.$m.$j." ".$hour.".*".$grep)." {$maillog_filename}", $lists);
 	  foreach ($lists as $line){
 	  	#check where is first mail record
 	  	if (preg_match("/ delay=(\d+)/",$line,$delay)){
@@ -294,7 +297,7 @@ function grep_log(){
 	}
 	
 	$config=parse_xml_config("{$g['conf_path']}/config.xml", $g['xml_rootobj']);
-	print count($config['installedpackages']);
+	//print count($config['installedpackages']);
 	#start db replication if configured
 	if ($config['installedpackages']['postfixsync']['config'][0]['rsync'])
 		foreach ($config['installedpackages']['postfixsync']['config'] as $rs )

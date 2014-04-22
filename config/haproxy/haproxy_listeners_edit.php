@@ -2,7 +2,7 @@
 /* $Id: load_balancer_pool_edit.php,v 1.24.2.23 2007/03/03 00:07:09 smos Exp $ */
 /*
 	haproxy_listeners_edit.php
-	part of pfSense (http://www.pfsense.com/)
+	part of pfSense (https://www.pfsense.org/)
 	Copyright (C) 2009 Scott Ullrich <sullrich@pfsense.com>
 	Copyright (C) 2008 Remco Hoef <remcoverhoef@pfsense.com>
 	All rights reserved.
@@ -83,7 +83,7 @@ if (isset($id) && $a_backend[$id]) {
 	
 	$pconfig['type'] = $a_backend[$id]['type'];
 	$pconfig['extaddr'] = $a_backend[$id]['extaddr'];	
-	$pconfig['pool'] = $a_backend[$id]['pool'];	
+	$pconfig['backend_serverpool'] = $a_backend[$id]['backend_serverpool'];	
 	$pconfig['max_connections'] = $a_backend[$id]['max_connections'];	
 	$pconfig['client_timeout'] = $a_backend[$id]['client_timeout'];	
 	$pconfig['port'] = $a_backend[$id]['port'];	
@@ -218,7 +218,7 @@ if ($_POST) {
 		update_if_changed("port", $backend['port'], $_POST['port']);
 		update_if_changed("svrport", $backend['svrport'], $_POST['svrport']);
 		update_if_changed("extaddr", $backend['extaddr'], $_POST['extaddr']);
-		update_if_changed("pool", $backend['pool'], $_POST['pool']);
+		update_if_changed("backend_serverpool", $backend['backend_serverpool'], $_POST['backend_serverpool']);
 		update_if_changed("max_connections", $backend['max_connections'], $_POST['max_connections']);
 		update_if_changed("client_timeout", $backend['client_timeout'], $_POST['client_timeout']);
 		update_if_changed("advanced", $backend['advanced'], base64_encode($_POST['advanced']));
@@ -241,8 +241,8 @@ if ($_POST) {
 	}
 }
 
-$pfSversion = str_replace("\n", "", file_get_contents("/etc/version"));
-if(strstr($pfSversion, "1.2"))
+$pf_version=substr(trim(file_get_contents("/etc/version")),0,3);
+if ($pf_version < 2.0)
 	$one_two = true;
 
 $pgtitle = "HAProxy: Listener: Edit";
@@ -507,22 +507,19 @@ include("head.inc");
 			</td>
 		</tr>
 		<tr>
-			  <td width="22%" valign="top" class="vncellreq">Server pool</td>
+			  <td width="22%" valign="top" class="vncellreq">Backend server pool</td>
 			  <td width="78%" class="vtable">
-				<select name="pool" class="formfld">
+			  
+				<select id="backend_serverpool" name="backend_serverpool" class="formfld">
 				<?php
 					if (is_array($a_pools)) {
-						foreach ($a_pools as $p): 
-				?>
-					<option value="<?=$p['name'];?>" <?php if ($p['name'] == $pconfig['pool']) echo "selected"; ?>>
-						<?=htmlspecialchars("{$p['name']}");?>
-					</option>
-				<?php
-						endforeach;
+						foreach ($a_pools as $p) {
+							$selected = $p['name'] == $pconfig['backend_serverpool'] ? 'selected' : '';
+							$name = htmlspecialchars("{$p['name']}");
+							echo "<option value=\"{$p['name']}\" $selected>$name</option>";
+						}
 					} else { 	
-				?>
-					<option value="-">-</option>
-				<?php
+						echo "<option value=\"-\">-</option>";
 					}
 				?>
 				</select>

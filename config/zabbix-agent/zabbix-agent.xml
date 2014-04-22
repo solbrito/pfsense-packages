@@ -17,7 +17,7 @@
 		<name>zabbix_agentd</name>
 		<rcfile>zabbix_agentd.sh</rcfile>
 		<executable>zabbix_agentd</executable>
-		<description>Zabbix Agent runs on a host being monitored. The agent provides host's performance and availability information for Zabbix Server.</description>
+		<description>Zabbix Agent host monitor daemon</description>
 	</service>
 	<tabs>
 		<tab>
@@ -111,7 +111,7 @@
 			<rows>5</rows>
 			<cols>50</cols>
 			<required>false</required>
-			<description>User-defined parameter to monitor. There can be several user-defined parameters. Value has form, example: UserParameter=users,who|wc -l</description>
+			<description>User-defined parameter to monitor. There can be several user-defined parameters. Value has form, example: UserParameter=users,who|wc -l &lt;br&gt;&lt;a href="https://www.zabbix.com/documentation/1.8/manual/tutorials/extending_agent" target="_new"&gt;See zabbix documentation for more information&lt;a&gt;</description>
 		</field>
 	</fields>
 	<custom_php_install_command>
@@ -183,7 +183,7 @@
 
 	$ListenIP=$_POST['listenip'];
 	if (!preg_match("/^(?:\d{1,3}\.){3}\d{1,3}$/", $ListenIP)) {
-		$input_errors[]='Listen IP is not ip-adress.';
+		$input_errors[]='Listen IP is not an IP address.';
 	}
 
 	$ListenPort=$_POST['listenport'];

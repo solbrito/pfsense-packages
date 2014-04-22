@@ -9,7 +9,7 @@
     varnish_lb_directors.xml
     part of pfSense (http://www.pfSense.com)
     Copyright (C) 2010 Scott Ullrich <sullrich@gmail.com>
-    Copyright (C) 2011 Marcello Coutinho
+    Copyright (C) 2011-2013 Marcello Coutinho
     
     All rights reserved.                                                      
 */
@@ -49,17 +49,17 @@
    	<additional_files_needed>
 	    <prefix>/usr/local/pkg/</prefix>
 	    <chmod>0755</chmod>
-	    <item>http://www.pfsense.com/packages/config/varnish64/varnish_settings.xml</item>
+	    <item>https://packages.pfsense.org/packages/config/varnish64/varnish_settings.xml</item>
 	</additional_files_needed>
    	<additional_files_needed>
 	    <prefix>/usr/local/pkg/</prefix>
 	    <chmod>0755</chmod>
-	    <item>http://www.pfsense.com/packages/config/varnish64/varnish_custom_vcl.xml</item>
+	    <item>https://packages.pfsense.org/packages/config/varnish64/varnish_custom_vcl.xml</item>
 	</additional_files_needed>
    	<additional_files_needed>
 	    <prefix>/usr/local/pkg/</prefix>
 	    <chmod>0755</chmod>
-	    <item>http://www.pfsense.com/packages/config/varnish64/varnish.inc</item>
+	    <item>https://packages.pfsense.org/packages/config/varnish64/varnish.inc</item>
 	</additional_files_needed>
 	<menu>
 		<name>Varnish </name>
@@ -99,6 +99,7 @@
 		</tab>
 	</tabs>
 	<adddeleteeditpagefields>
+			<movable>on</movable>
 		<columnitem>
 			<fielddescr>Director name</fielddescr>
 			<fieldname>directorname</fieldname>
@@ -119,7 +120,7 @@
                         <fielddescr>Rewrite url</fielddescr>
                         <fieldname>rewriteurl</fieldname>
                 </columnitem>
-		
+
 		<columnitem>
 			<fielddescr>Type</fielddescr>
 			<fieldname>directortype</fieldname>
@@ -136,7 +137,6 @@
 	<fields>
 		<field>
 			<fielddescr>DirectorSettings</fielddescr>
-			<fieldname>Director Settings</fieldname>
 			<type>listtopic</type>
 			<name>Director settings</name>
 		</field>
@@ -176,13 +176,13 @@
 			<type>input</type>
 			<size>40</size>
 		</field>
-      	        <field>
-                        <fielddescr>Rewrite Host</fielddescr>
-                        <fieldname>rewritehost</fieldname>
-                        <description>Hint image.mysite.com</description>
-                        <type>input</type>
-                        <size>40</size>
-                </field>
+		<field>
+			<fielddescr>Rewrite Host</fielddescr>
+			<fieldname>rewritehost</fieldname>
+			<description>Hint image.mysite.com</description>
+			<type>input</type>
+			<size>40</size>
+		</field>
                 <field>
                         <fielddescr>Rewrite URL</fielddescr>
                         <fieldname>rewriteurl</fieldname>
@@ -208,7 +208,6 @@
 		</field>
 		<field>
 			<fielddescr>Backendlist</fielddescr>
-			<fieldname>Backendlist</fieldname>
 			<type>listtopic</type>
 			<name>Backend Settings</name>
 		</field>
@@ -248,7 +247,6 @@
 		</field>
 		<field>
 			<fielddescr>FailoverSettings</fielddescr>
-			<fieldname>FailoverSettings</fieldname>
 			<type>listtopic</type>
 			<name>Failover Settings</name>
 		</field>
